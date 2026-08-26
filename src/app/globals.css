@@ -23,9 +23,14 @@
   --color-text: #f4f4f5;
   --color-muted: #8a8a93;
 
-  /* The single accent: primary actions, active state, key numbers. */
+  /*
+   * The single accent: primary actions, active state, key numbers.
+   * Interaction states step *down* in lightness — the base is already close
+   * to white, so a lighter hover is nearly invisible against it.
+   */
   --color-accent: #c8f751;
-  --color-accent-hover: #d6ff6b;
+  --color-accent-hover: #b0d947;
+  --color-accent-active: #9cc13f;
   --color-accent-contrast: #0a0a0b;
 
   --color-danger: #f4515b;

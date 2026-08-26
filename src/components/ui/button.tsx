@@ -2,12 +2,14 @@ import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 const BASE_CLASSES =
-  'inline-flex shrink-0 items-center justify-center rounded-md font-medium transition-colors duration-150 ease-out disabled:pointer-events-none disabled:opacity-50'
+  'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md font-medium transition-colors duration-150 ease-out disabled:pointer-events-none disabled:opacity-50'
 
 const VARIANT_CLASSES = {
-  primary: 'bg-accent text-accent-contrast hover:bg-accent-hover',
-  ghost: 'border border-line text-text hover:border-line-strong hover:bg-surface-hover',
-  danger: 'border border-danger/40 text-danger hover:border-danger hover:bg-danger/10',
+  primary: 'bg-accent text-accent-contrast hover:bg-accent-hover active:bg-accent-active',
+  ghost:
+    'border border-line text-text hover:border-line-strong hover:bg-surface-hover active:bg-line',
+  danger:
+    'border border-danger/40 text-danger hover:border-danger hover:bg-danger/15 active:bg-danger/25',
 } as const
 
 const SIZE_CLASSES = {
