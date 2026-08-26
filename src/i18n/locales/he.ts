@@ -72,6 +72,8 @@ export const he = {
         `"${name}" עדיין באמצע. אפשר להמשיך מאיפה שהפסקת.`,
       dismiss: 'לא עכשיו',
       emptyWorkouts: 'אין עדיין אימונים להתחיל',
+      pickWorkout: 'בחירת אימון',
+      exercisesCount: (count: number) => `${formatNumber(count)} תרגילים`,
     },
 
     run: {
@@ -114,6 +116,9 @@ export const he = {
       completeSet: 'סיום סט',
       undoSet: 'ביטול הסט האחרון',
       upNext: 'הבאים בתור',
+      upNextEmpty: 'זה התרגיל האחרון',
+      remainingSets: (done: number, total: number) =>
+        `${formatNumber(done)}/${formatNumber(total)}`,
       done: 'הושלם',
       allDone: 'סיימת את כל התרגילים',
       allDoneDescription: 'אפשר לסיים את האימון.',

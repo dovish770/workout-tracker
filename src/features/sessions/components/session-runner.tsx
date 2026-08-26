@@ -16,6 +16,7 @@ import { completeSet, finishSession, undoSet } from '../actions'
 import { getSessionProgress } from '../progress'
 import type { WorkoutSession } from '../types'
 import { MaxWeightHeader } from './max-weight-header'
+import { UpNextList } from './up-next-list'
 
 const text = dict.sessions.run
 
@@ -297,16 +298,21 @@ export function SessionRunner({ session }: SessionRunnerProps) {
         </>
       }
       footer={
-        <p className="text-muted text-xs tabular-nums">
-          {text.exerciseProgress(
-            progress.currentIndex + 1,
-            optimisticSession.exercises.length,
-          )}
-          {' · '}
-          {text.setProgress(exercise.completedSets, exercise.targetSets)}
-          {' · '}
-          {text.totalProgress(progress.completedSets, progress.totalSets)}
-        </p>
+        <>
+          <UpNextList
+            exercises={optimisticSession.exercises.slice(progress.currentIndex + 1)}
+          />
+          <p className="text-muted text-xs tabular-nums">
+            {text.exerciseProgress(
+              progress.currentIndex + 1,
+              optimisticSession.exercises.length,
+            )}
+            {' · '}
+            {text.setProgress(exercise.completedSets, exercise.targetSets)}
+            {' · '}
+            {text.totalProgress(progress.completedSets, progress.totalSets)}
+          </p>
+        </>
       }
     />
   )

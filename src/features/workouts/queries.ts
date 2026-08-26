@@ -7,9 +7,10 @@ import type { Workout, WorkoutSummary } from './schema'
 
 const idSchema = z.uuid()
 
-export function getWorkouts(): Promise<WorkoutSummary[]> {
+/** Memoized per request — the entry prompt in the layout also needs this list. */
+export const getWorkouts = cache(async (): Promise<WorkoutSummary[]> => {
   return workoutRepository.list()
-}
+})
 
 /**
  * Memoized for the duration of one request: `generateMetadata` and the page

@@ -11,6 +11,8 @@ import { useCallback, useSyncExternalStore } from 'react'
  *
  * Writes notify listeners in this tab; the `storage` event covers other tabs.
  */
+export type StorageArea = 'local' | 'session'
+
 const listeners = new Set<() => void>()
 
 function emitChange() {
@@ -27,9 +29,13 @@ function subscribe(listener: () => void) {
   }
 }
 
-function read(key: string): string | null {
+function areaOf(area: StorageArea): Storage {
+  return area === 'session' ? window.sessionStorage : window.localStorage
+}
+
+function read(key: string, area: StorageArea): string | null {
   try {
-    return window.localStorage.getItem(key)
+    return areaOf(area).getItem(key)
   } catch {
     // Private mode and blocked site data both throw. The caller still works;
     // the value simply does not persist.
@@ -39,10 +45,11 @@ function read(key: string): string | null {
 
 export function useStoredValue(
   key: string,
+  area: StorageArea = 'local',
 ): [string | null, (value: string | null) => void] {
   const value = useSyncExternalStore(
     subscribe,
-    () => read(key),
+    () => read(key, area),
     // Server snapshot: there is no storage, so callers fall back to a default.
     () => null,
   )
@@ -50,15 +57,15 @@ export function useStoredValue(
   const setValue = useCallback(
     (next: string | null) => {
       try {
-        if (next === null) window.localStorage.removeItem(key)
-        else window.localStorage.setItem(key, next)
+        if (next === null) areaOf(area).removeItem(key)
+        else areaOf(area).setItem(key, next)
       } catch {
         /* as above */
       }
 
       emitChange()
     },
-    [key],
+    [key, area],
   )
 
   return [value, setValue]

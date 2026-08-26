@@ -1,11 +1,9 @@
 'use client'
 
 import { Play } from 'lucide-react'
-import { useTransition } from 'react'
 import { Button, type ButtonSize, type ButtonVariant } from '@/components/ui/button'
-import { useToast } from '@/components/ui/toast'
 import { dict } from '@/i18n'
-import { startSession } from '../actions'
+import { useStartWorkout } from '../use-start-workout'
 
 export interface StartWorkoutButtonProps {
   workoutId: string
@@ -15,10 +13,8 @@ export interface StartWorkoutButtonProps {
 }
 
 /**
- * Starts a session and hands over to focus mode.
- *
  * A button rather than a link: starting is a write, and it can legitimately
- * refuse — there is already a session running.
+ * refuse when a session is already running.
  */
 export function StartWorkoutButton({
   workoutId,
@@ -26,22 +22,13 @@ export function StartWorkoutButton({
   variant,
   className,
 }: StartWorkoutButtonProps) {
-  const [isStarting, startAction] = useTransition()
-  const toast = useToast()
-
-  function start() {
-    startAction(async () => {
-      // Redirects on success, so only a refusal comes back.
-      const result = await startSession(workoutId)
-      if (!result.ok) toast.show(result.error, 'danger')
-    })
-  }
+  const { start, isStarting } = useStartWorkout()
 
   return (
     <Button
       size={size}
       variant={variant}
-      onClick={start}
+      onClick={() => start(workoutId)}
       isLoading={isStarting}
       className={className}
     >
