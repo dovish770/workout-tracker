@@ -8,4 +8,7 @@ export const ROUTES = {
     new: '/workouts/new',
     detail: (id: string) => `/workouts/${id}`,
   },
+  sessions: {
+    detail: (id: string) => `/sessions/${id}`,
+  },
 } as const

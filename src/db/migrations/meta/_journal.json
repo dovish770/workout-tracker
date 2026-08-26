@@ -15,6 +15,13 @@
       "when": 1787747578276,
       "tag": "0001_normalize_exercises",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787756793926,
+      "tag": "0002_workout_sessions",
+      "breakpoints": true
     }
   ]
 }

@@ -59,6 +59,58 @@ export const he = {
     newWorkout: 'אימון חדש',
   },
 
+  sessions: {
+    startAction: 'התחל אימון',
+    resumeAction: 'המשך אימון',
+    activeBanner: (name: string) => `אימון פעיל: ${name}`,
+
+    startDialog: {
+      title: 'להתחיל אימון?',
+      description: 'בחר את האימון שתרצה לבצע עכשיו.',
+      resumeTitle: 'יש לך אימון פעיל',
+      resumeDescription: (name: string) =>
+        `"${name}" עדיין באמצע. אפשר להמשיך מאיפה שהפסקת.`,
+      dismiss: 'לא עכשיו',
+      emptyWorkouts: 'אין עדיין אימונים להתחיל',
+    },
+
+    run: {
+      exerciseProgress: (current: number, total: number) =>
+        `תרגיל ${formatNumber(current)} מתוך ${formatNumber(total)}`,
+      setProgress: (done: number, total: number) =>
+        `סט ${formatNumber(done)} מתוך ${formatNumber(total)}`,
+      totalProgress: (done: number, total: number) =>
+        `${formatNumber(done)} מתוך ${formatNumber(total)} סטים`,
+      targetReps: (count: number) => `${formatNumber(count)} חזרות`,
+      targetWeight: (weight: number) => `${formatNumber(weight)} ק״ג`,
+      noTarget: 'ללא יעד',
+      completeSet: 'סיום סט',
+      undoSet: 'ביטול הסט האחרון',
+      upNext: 'הבאים בתור',
+      done: 'הושלם',
+      allDone: 'סיימת את כל התרגילים',
+      allDoneDescription: 'אפשר לסיים את האימון.',
+      finish: 'סיום אימון',
+      finished: 'האימון הושלם. כל הכבוד.',
+      backToWorkouts: 'חזרה לאימונים',
+    },
+
+    abandon: {
+      action: 'נטישת האימון',
+      title: 'לנטוש את האימון?',
+      description: 'ההתקדמות תישמר כאימון שננטש, ולא ניתן יהיה להמשיך אותו.',
+      confirm: 'נטוש את האימון',
+    },
+
+    errors: {
+      alreadyActive: 'כבר יש אימון פעיל. סיים אותו לפני שתתחיל חדש.',
+      cannotStart: 'לא ניתן להתחיל את האימון הזה. ייתכן שהוא נמחק או שאין בו תרגילים.',
+      notActive: 'האימון כבר אינו פעיל.',
+      notFoundTitle: 'האימון הפעיל לא נמצא',
+      notFoundDescription: 'ייתכן שהוא הסתיים או נמחק.',
+    },
+  },
+
   workouts: {
     list: {
       title: 'האימונים שלי',
