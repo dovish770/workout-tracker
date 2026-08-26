@@ -8,17 +8,17 @@
 
 ---
 
-## שלב 0 — תשתית ופיגומים
+## שלב 0 — תשתית ופיגומים ✅
 
-- [ ] `create-next-app` — TypeScript, App Router, Tailwind v4, ESLint, `src/`, alias `@/*`
-- [ ] התקנת תלויות: `zod`, `react-hook-form`, `@hookform/resolvers`, `clsx`, `tailwind-merge`, `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/modifiers`
-- [ ] יצירת שלד התיקיות מ־§2 בקונבנציות
-- [ ] `lib/cn.ts` (clsx + tailwind-merge)
-- [ ] `lib/env.ts` — ולידציית `process.env` ב־zod (`DATABASE_URL` אופציונלי עד שלב 2)
-- [ ] `lib/format.ts` — `formatNumber` מבוסס `Intl.NumberFormat('he-IL')`
-- [ ] `app/layout.tsx` עם `lang="he" dir="rtl"` + פונט עם כיסוי עברי מלא
-- [ ] `.env.example`, `.gitignore`, `README.md` קצר
-- [ ] `git init` + commit ראשון
+- [x] `create-next-app` — TypeScript, App Router, Tailwind v4, ESLint, `src/`, alias `@/*`
+- [x] התקנת תלויות: `zod`, `react-hook-form`, `@hookform/resolvers`, `clsx`, `tailwind-merge`, `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/modifiers`
+- [x] יצירת שלד התיקיות מ־§2 בקונבנציות
+- [x] `lib/cn.ts` (clsx + tailwind-merge)
+- [x] `lib/env.ts` — ולידציית `process.env` ב־zod (`DATABASE_URL` אופציונלי עד שלב 2)
+- [x] `lib/format.ts` — `formatNumber` מבוסס `Intl.NumberFormat('he-IL')`
+- [x] `app/layout.tsx` עם `lang="he" dir="rtl"` + פונט עם כיסוי עברי מלא
+- [x] `.env.example`, `.gitignore`, `README.md` קצר
+- [x] `git init` + commit ראשון
 - **מוכן כאשר:** `npm run dev` עולה, `npm run lint` ו־`tsc --noEmit` נקיים
 
 ## שלב 1 — שפת עיצוב, מילון טקסטים, ו־UI primitives

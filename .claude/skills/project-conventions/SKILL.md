@@ -217,3 +217,18 @@ Every data surface implements all four states: loading (`loading.tsx` or skeleto
 5. No physical direction utilities (`ml-`, `pr-`, `left-`, `right-`, `text-left`, `text-right`).
 6. Keyboard reachable, visible focus, labels tied to inputs.
 7. Works at 375px and 1440px, in RTL.
+
+## 11. Version gotchas (verified against the installed lockfile)
+
+**Next.js 16** differs from most training data. `node_modules/next/dist/docs/` holds the version-accurate docs — read the relevant page before using an unfamiliar API.
+
+- `params` and `searchParams` are **Promises**: `const { id } = await params`.
+- Route props have generated global types — use `PageProps<'/workouts/[id]'>` and `LayoutProps<'/'>` instead of hand-writing prop types. They are generated into `.next/types`, so `tsc --noEmit` fails on a clean checkout until `next build` or `next dev` has run once.
+- `next lint` is gone; the `lint` script calls `eslint` directly.
+- `AGENTS.md` at the repo root is written and re-added by `next dev`. Commit it with your work rather than deleting it.
+
+**Zod 4** renamed several APIs:
+
+- String formats are top-level: `z.url()`, `z.email()`, `z.uuid()` — not `z.string().url()`.
+- Error customization uses `error`, not `message` / `required_error` / `invalid_type_error`.
+- `z.prettifyError(error)` formats a `ZodError` for logs; `error.flatten()` is deprecated in favor of `z.treeifyError()`.
