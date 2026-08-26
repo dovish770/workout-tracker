@@ -6,9 +6,11 @@ import { FormProvider, useForm, type Path } from 'react-hook-form'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { useUnsavedChangesGuard } from '@/hooks/use-unsaved-changes-guard'
 import { dict } from '@/i18n'
 import type { ActionResult } from '@/lib/result'
 import { WORKOUT_DESCRIPTION_MAX, WORKOUT_NAME_MAX } from '../constants'
@@ -49,8 +51,12 @@ export function WorkoutForm({
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isDirty, isSubmitting },
   } = form
+
+  // A submit in flight is on its way out of the page on purpose; only an
+  // abandoned edit should be held back.
+  const leaveGuard = useUnsavedChangesGuard(isDirty && !isSubmitting)
 
   async function submit(values: WorkoutInput) {
     setFormError(null)
@@ -72,6 +78,16 @@ export function WorkoutForm({
 
   return (
     <FormProvider {...form}>
+      <ConfirmDialog
+        isOpen={leaveGuard.pendingHref !== null}
+        title={dict.unsavedChanges.title}
+        description={dict.unsavedChanges.description}
+        confirmLabel={dict.unsavedChanges.confirm}
+        cancelLabel={dict.unsavedChanges.cancel}
+        onConfirm={leaveGuard.confirmLeave}
+        onCancel={leaveGuard.cancelLeave}
+      />
+
       <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-8">
         {formError ? <Alert>{formError}</Alert> : null}
 

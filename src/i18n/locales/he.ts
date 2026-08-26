@@ -37,6 +37,13 @@ export const he = {
     notFound: 'הדף לא נמצא',
   },
 
+  unsavedChanges: {
+    title: 'לצאת בלי לשמור?',
+    description: 'יש שינויים שלא נשמרו. אם תעזוב את הדף הם יאבדו.',
+    confirm: 'צא בלי לשמור',
+    cancel: 'המשך עריכה',
+  },
+
   nav: {
     brand: 'מעקב אימונים',
     workouts: 'האימונים שלי',

@@ -55,6 +55,7 @@ src/
 │  ├─ client.ts                # neon + drizzle instance (singleton)
 │  ├─ schema.ts                # drizzle table definitions
 │  └─ repository.ts            # data-access boundary (see §7)
+├─ hooks/                      # generic, domain-free hooks (use-*.ts)
 ├─ lib/
 │  ├─ cn.ts                    # clsx + tailwind-merge
 │  ├─ env.ts                   # zod-validated process.env
@@ -213,6 +214,7 @@ application code.
 - `useFieldArray` for exercises; every row keys off the stable `field.id` — never the array index. Reordering uses `move()`, never manual splice.
 - Drag & drop must also work from the keyboard (dnd-kit `KeyboardSensor`) and expose the row's position via `aria`.
 - Submit state: disable the button and show pending copy via RHF `isSubmitting`. Never allow a double submit.
+- Any form that can hold unsaved work uses `useUnsavedChangesGuard(isDirty && !isSubmitting)`. It guards tab close via `beforeunload` and in-app links via one capture-phase document listener — deliberately not by opting each `<Link>` into `onNavigate`, since a guard every new link must remember is one that will be forgotten.
 - Optional numeric fields (reps, max weight) normalize `''` → `null` in the schema, never `NaN` or `0`.
 
 ## 9. Errors, loading, empty
