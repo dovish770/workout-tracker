@@ -22,11 +22,12 @@ import { CSS } from '@dnd-kit/utilities'
 import { useId, useMemo } from 'react'
 import { cn } from '@/lib/cn'
 
-/** Props the caller must spread onto whatever element should start a drag. */
-export interface DragHandleProps {
-  ref: (element: HTMLElement | null) => void
-  [key: string]: unknown
-}
+/**
+ * Spread onto whatever element should start a drag. Typed as button props so
+ * it can go straight onto a real `<button>` — a drag handle must be focusable
+ * and operable from the keyboard, which a `<div>` is not.
+ */
+export type DragHandleProps = React.ComponentProps<'button'>
 
 export interface SortableItemRenderProps {
   isDragging: boolean

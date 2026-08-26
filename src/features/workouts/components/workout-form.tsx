@@ -1,0 +1,119 @@
+'use client'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
+import { FormProvider, useForm, type Path } from 'react-hook-form'
+import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Field } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { dict } from '@/i18n'
+import type { ActionResult } from '@/lib/result'
+import { WORKOUT_DESCRIPTION_MAX, WORKOUT_NAME_MAX } from '../constants'
+import type { WorkoutFormValues } from '../form-values'
+import { workoutInputSchema, type WorkoutInput } from '../schema'
+import { ExerciseFields } from './exercise-fields'
+
+const text = dict.workouts.form
+
+export interface WorkoutFormProps {
+  defaultValues: WorkoutFormValues
+  submitLabel: string
+  /** A server action. On success it either redirects or resolves with `ok`. */
+  onSubmit: (values: WorkoutInput) => Promise<ActionResult<unknown>>
+  /** Cancel control — a link when creating, a state toggle when editing. */
+  secondaryAction?: React.ReactNode
+}
+
+/**
+ * The only workout form. Creating and editing differ solely in their default
+ * values, submit label and action, so they share this component rather than
+ * duplicating a screen's worth of fields.
+ */
+export function WorkoutForm({
+  defaultValues,
+  submitLabel,
+  onSubmit,
+  secondaryAction,
+}: WorkoutFormProps) {
+  const [formError, setFormError] = useState<string | null>(null)
+
+  const form = useForm<WorkoutFormValues, unknown, WorkoutInput>({
+    resolver: zodResolver(workoutInputSchema),
+    defaultValues,
+  })
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = form
+
+  async function submit(values: WorkoutInput) {
+    setFormError(null)
+
+    // A successful create redirects, so this promise may never settle — the
+    // component unmounts mid-navigation. Only failures get past here.
+    const result = await onSubmit(values)
+    if (result.ok) return
+
+    if (result.fieldErrors) {
+      for (const [path, messages] of Object.entries(result.fieldErrors)) {
+        setError(path as Path<WorkoutFormValues>, { message: messages[0] })
+      }
+      return
+    }
+
+    setFormError(result.error)
+  }
+
+  return (
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-8">
+        {formError ? <Alert>{formError}</Alert> : null}
+
+        <section className="flex flex-col gap-3">
+          <h2 className="text-sm font-medium">{text.detailsTitle}</h2>
+
+          <Card className="flex flex-col gap-4 p-4">
+            <Field label={text.nameLabel} error={errors.name?.message} isRequired>
+              {(control) => (
+                <Input
+                  {...control}
+                  {...register('name')}
+                  placeholder={text.namePlaceholder}
+                  maxLength={WORKOUT_NAME_MAX}
+                  autoComplete="off"
+                />
+              )}
+            </Field>
+
+            <Field label={text.descriptionLabel} error={errors.description?.message}>
+              {(control) => (
+                <Textarea
+                  {...control}
+                  {...register('description')}
+                  placeholder={text.descriptionPlaceholder}
+                  maxLength={WORKOUT_DESCRIPTION_MAX}
+                  rows={2}
+                />
+              )}
+            </Field>
+          </Card>
+        </section>
+
+        <ExerciseFields />
+
+        <div className="flex items-center gap-2">
+          <Button type="submit" isLoading={isSubmitting}>
+            {isSubmitting ? text.submitting : submitLabel}
+          </Button>
+          {secondaryAction}
+        </div>
+      </form>
+    </FormProvider>
+  )
+}

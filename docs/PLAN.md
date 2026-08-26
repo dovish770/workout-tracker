@@ -88,16 +88,16 @@
 - [x] כפתור "אימון חדש" ב־`PageHeader`
 - **מוכן כאשר:** הרשימה מציגה נתונים אמיתיים מ־Neon, נראית טוב ב־375px, ולוחצת לדף פרטים
 
-## שלב 4 — דף יצירת אימון (`/workouts/new`)
+## שלב 4 — דף יצירת אימון (`/workouts/new`) ✅
 
-- [ ] `workout-form.tsx` — client component יחיד שמשרת יצירה **ועריכה** (`defaultValues`, `submitLabel`, `onSubmitAction`)
-- [ ] `exercise-fields.tsx` — `useFieldArray`: מתחיל בשורה אחת, "הוסף תרגיל", הסרה (חסומה כשנשאר אחד)
-- [ ] `exercise-row.tsx` — ידית גרירה / שם / סטים / חזרות / משקל שיא, בנוי מ־`Field`
-- [ ] חיבור `ExerciseFields` ל־`SortableList` — גרירה קוראת ל־`move()` של RHF
-- [ ] גרירה נגישה מהמקלדת (`KeyboardSensor`) + הכרזת מיקום ב־`aria-live`
-- [ ] חיבור `createWorkout` + טיפול ב־`fieldErrors` מהשרת
-- [ ] מצב שליחה: כפתור מושבת, טקסט pending, אין submit כפול
-- [ ] אחרי שמירה — redirect לדף האימון שנוצר
+- [x] `workout-form.tsx` — client component יחיד שמשרת יצירה **ועריכה** (`defaultValues`, `submitLabel`, `onSubmitAction`)
+- [x] `exercise-fields.tsx` — `useFieldArray`: מתחיל בשורה אחת, "הוסף תרגיל", הסרה (חסומה כשנשאר אחד)
+- [x] `exercise-row.tsx` — ידית גרירה / שם / סטים / חזרות / משקל שיא, בנוי מ־`Field`
+- [x] חיבור `ExerciseFields` ל־`SortableList` — גרירה קוראת ל־`move()` של RHF
+- [x] גרירה נגישה מהמקלדת (`KeyboardSensor`) + הכרזת מיקום ב־`aria-live`
+- [x] חיבור `createWorkout` + טיפול ב־`fieldErrors` מהשרת
+- [x] מצב שליחה: כפתור מושבת, טקסט pending, אין submit כפול
+- [x] אחרי שמירה — redirect לדף האימון שנוצר
 - **מוכן כאשר:** אפשר ליצור אימון עם N תרגילים בסדר שנקבע בגרירה, והוא נשמר ב־Neon
 
 ## שלב 5 — דף אימון: תצוגה ועריכה inline (`/workouts/[id]`)

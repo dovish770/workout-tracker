@@ -16,25 +16,19 @@ import {
 const message = dict.workouts.validation
 
 /**
- * A cleared number input hands back `''`, and `valueAsNumber` turns that into
- * `NaN`. Both mean "the user typed nothing" — collapse them to `undefined` so
- * a required field reports "missing" rather than "not a number", and an
- * optional one can become `null`.
+ * Numeric fields are `number | null`, never `''` or `NaN`. The form maps a
+ * cleared input to `null` on the way in (see `toNullableNumber`), so `null`
+ * means "empty" everywhere: allowed on an optional field, and reported as
+ * missing rather than as a type error on a required one.
  */
-function normalizeNumberInput(value: unknown): unknown {
-  if (value === '' || value === null || value === undefined) return undefined
-  if (typeof value === 'number' && Number.isNaN(value)) return undefined
-  return value
-}
-
-/** Optional numeric field: absent, or a number inside the given bounds. */
-function optionalNumber(schema: z.ZodType<number>) {
-  return z.preprocess((value) => normalizeNumberInput(value) ?? null, schema.nullable())
-}
-
 export const exerciseSchema = z.object({
-  // Generated on the client so a row keeps its identity across reordering.
-  id: z.uuid(),
+  /**
+   * Identifies a row across edits. An existing exercise sends its id back so
+   * it survives a save; a newly added one has none and gets one here, at
+   * validation time — never during render, which would bake a fixed id into
+   * the prerendered "new workout" page.
+   */
+  id: z.uuid().default(() => crypto.randomUUID()),
 
   name: z
     .string()
@@ -42,29 +36,25 @@ export const exerciseSchema = z.object({
     .min(1, { error: message.exerciseNameRequired })
     .max(EXERCISE_NAME_MAX, { error: message.exerciseNameTooLong(EXERCISE_NAME_MAX) }),
 
-  sets: z.preprocess(
-    normalizeNumberInput,
-    z
-      .number({ error: message.setsRequired })
-      .int({ error: message.setsInteger })
-      .min(SETS_MIN, { error: message.setsRange(SETS_MIN, SETS_MAX) })
-      .max(SETS_MAX, { error: message.setsRange(SETS_MIN, SETS_MAX) }),
-  ),
+  // `null` fails the type check here, which is what surfaces "required".
+  sets: z
+    .number({ error: message.setsRequired })
+    .int({ error: message.setsInteger })
+    .min(SETS_MIN, { error: message.setsRange(SETS_MIN, SETS_MAX) })
+    .max(SETS_MAX, { error: message.setsRange(SETS_MIN, SETS_MAX) }),
 
-  reps: optionalNumber(
-    z
-      .number({ error: message.repsInteger })
-      .int({ error: message.repsInteger })
-      .min(REPS_MIN, { error: message.repsRange(REPS_MIN, REPS_MAX) })
-      .max(REPS_MAX, { error: message.repsRange(REPS_MIN, REPS_MAX) }),
-  ),
+  reps: z
+    .number({ error: message.repsInteger })
+    .int({ error: message.repsInteger })
+    .min(REPS_MIN, { error: message.repsRange(REPS_MIN, REPS_MAX) })
+    .max(REPS_MAX, { error: message.repsRange(REPS_MIN, REPS_MAX) })
+    .nullable(),
 
-  maxWeight: optionalNumber(
-    z
-      .number({ error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
-      .min(WEIGHT_MIN, { error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
-      .max(WEIGHT_MAX, { error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) }),
-  ),
+  maxWeight: z
+    .number({ error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
+    .min(WEIGHT_MIN, { error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
+    .max(WEIGHT_MAX, { error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
+    .nullable(),
 })
 
 /** Everything a user can supply — the payload of both create and update. */
