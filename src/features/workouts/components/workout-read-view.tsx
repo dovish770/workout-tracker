@@ -17,7 +17,7 @@ export function WorkoutReadView({ workout }: WorkoutReadViewProps) {
       <h2 className="text-sm font-medium">{text.exercisesTitle}</h2>
 
       {workout.exercises.length === 0 ? (
-        <EmptyState title={text.exercisesTitle} />
+        <EmptyState title={text.noExercises} />
       ) : (
         <ol className="flex flex-col gap-2">
           {workout.exercises.map((exercise, index) => (

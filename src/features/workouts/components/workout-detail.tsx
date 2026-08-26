@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ButtonLink } from '@/components/ui/button-link'
 import { PageHeader } from '@/components/ui/page-header'
+import { useToast } from '@/components/ui/toast'
 import { dict } from '@/i18n'
 import { ROUTES } from '@/lib/routes'
 import { updateWorkout } from '../actions'
@@ -26,10 +27,17 @@ export interface WorkoutDetailProps {
  */
 export function WorkoutDetail({ workout }: WorkoutDetailProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const toast = useToast()
 
   async function submitEdit(values: WorkoutInput) {
     const result = await updateWorkout(workout.id, values)
-    if (result.ok) setIsEditing(false)
+
+    // Saving collapses the form back to the read view, which on its own is
+    // ambiguous — the toast is what says the save actually landed.
+    if (result.ok) {
+      setIsEditing(false)
+      toast.show(dict.workouts.detail.saved)
+    }
 
     return result
   }

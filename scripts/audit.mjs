@@ -14,8 +14,8 @@ import { join, posix, sep } from 'node:path'
 const SOURCE_ROOT = 'src'
 const SCANNED_EXTENSIONS = ['.ts', '.tsx']
 
-/** Files allowed to contain Hebrew: the dictionary, and the dev-only gallery. */
-const TEXT_EXEMPT_PREFIXES = ['src/i18n/', 'src/app/design/']
+/** The dictionary is the only place allowed to contain Hebrew. */
+const TEXT_EXEMPT_PREFIXES = ['src/i18n/']
 
 const HEBREW_CHARACTER = /[֐-׿]/
 

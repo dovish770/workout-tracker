@@ -33,8 +33,17 @@ export const he = {
   errors: {
     title: 'משהו השתבש',
     generic: 'הפעולה נכשלה. נסה שוב.',
+    description: 'אירעה שגיאה בלתי צפויה. אפשר לנסות שוב.',
     retry: 'נסה שוב',
     notFound: 'הדף לא נמצא',
+    notFoundDescription: 'הכתובת שביקשת לא קיימת.',
+    backHome: 'חזרה לאימונים',
+  },
+
+  a11y: {
+    skipToContent: 'דילוג לתוכן הראשי',
+    notifications: 'הודעות מערכת',
+    dismiss: 'סגירת ההודעה',
   },
 
   unsavedChanges: {
@@ -76,6 +85,8 @@ export const he = {
       weightValue: (weight: number) => `${formatNumber(weight)} ק״ג`,
       notFoundTitle: 'האימון לא נמצא',
       notFoundDescription: 'ייתכן שהאימון נמחק או שהקישור שגוי.',
+      noExercises: 'לאימון הזה אין תרגילים',
+      saved: 'השינויים נשמרו',
     },
 
     form: {

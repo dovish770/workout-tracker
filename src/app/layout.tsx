@@ -11,7 +11,8 @@ const heebo = Heebo({
 })
 
 export const metadata: Metadata = {
-  title: dict.meta.title,
+  // Pages set only their own name; the app name is appended here.
+  title: { default: dict.meta.title, template: `%s · ${dict.meta.title}` },
   description: dict.meta.description,
 }
 
