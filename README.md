@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Workout Tracker
 
-## Getting Started
+ניהול אימונים ותרגילים. Next.js App Router · TypeScript · Tailwind v4 · Neon + Drizzle.
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install
+cp .env.example .env.local   # DATABASE_URL required from stage 2 onward
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script              | Purpose                         |
+| ------------------- | ------------------------------- |
+| `npm run dev`       | Development server              |
+| `npm run build`     | Production build                |
+| `npm run lint`      | ESLint                          |
+| `npm run typecheck` | `tsc --noEmit`                  |
+| `npm run format`    | Prettier write                  |
+| `npm run check`     | lint + typecheck + format check |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project layout
 
-## Learn More
+```
+src/
+├─ app/          routing only — thin pages
+├─ i18n/         every user-facing string
+├─ components/   ui/ = generic primitives, layout/ = app shell
+├─ features/     domain code (workouts)
+├─ db/           drizzle schema, client, repository
+├─ lib/          cn, env, format, routes, result
+└─ types/
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Conventions
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Architecture and coding rules live in
+[`.claude/skills/project-conventions/SKILL.md`](.claude/skills/project-conventions/SKILL.md).
+Two rules worth knowing before the first commit:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **No user-facing string or magic number in code.** Text goes in `src/i18n/locales/he.ts`,
+  numeric limits in `features/<entity>/constants.ts`, URLs in `lib/routes.ts`.
+- **RTL is structural.** Only logical Tailwind utilities (`ms-`, `pe-`, `start-`, `text-start`).
+  `ml-`, `pr-`, `left-`, `right-`, `text-left`, `text-right` are banned in app code.
 
-## Deploy on Vercel
+## Build plan
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[`docs/PLAN.md`](docs/PLAN.md)
