@@ -1,19 +1,81 @@
 @import 'tailwindcss';
 
 /*
- * Design tokens. Components reference these only through Tailwind utilities
- * (`bg-surface`, `text-muted`, ...) — never as raw hex values.
- * The full palette and spacing scale land in stage 1.
+ * Design tokens — dark, sporty, minimal.
+ *
+ * These are the only colour, radius and font declarations in the codebase.
+ * Components reference them through Tailwind utilities (`bg-surface`,
+ * `text-muted`, `border-line`, `text-accent`) and never as raw hex values.
  */
 @theme {
   --font-sans: var(--font-heebo), system-ui, sans-serif;
 
+  /* Surfaces, from furthest back to closest. */
   --color-bg: #0a0a0b;
+  --color-surface: #141416;
+  --color-surface-hover: #1b1b1e;
+
+  /* Hairlines. `line-strong` is only for hover/active borders. */
+  --color-line: #26262a;
+  --color-line-strong: #3a3a41;
+
+  /* Text. */
   --color-text: #f4f4f5;
+  --color-muted: #8a8a93;
+
+  /* The single accent: primary actions, active state, key numbers. */
+  --color-accent: #c8f751;
+  --color-accent-hover: #d6ff6b;
+  --color-accent-contrast: #0a0a0b;
+
+  --color-danger: #f4515b;
+  --color-danger-hover: #ff6b74;
+
+  /* Two radii only. */
+  --radius-md: 8px;
+  --radius-lg: 12px;
 }
 
-body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
+@layer base {
+  html {
+    /* Makes native scrollbars, form controls and autofill render dark. */
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+
+  /*
+   * Tailwind v4 defaults borders to `currentColor`; pin them to the hairline
+   * token so a missing `border-line` never paints a bright white edge.
+   */
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-line);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-accent-contrast);
+  }
+
+  /* Number inputs: hide the spinners, they fight the minimal look. */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    appearance: textfield;
+  }
 }

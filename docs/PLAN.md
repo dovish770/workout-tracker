@@ -21,31 +21,31 @@
 - [x] `git init` + commit ראשון
 - **מוכן כאשר:** `npm run dev` עולה, `npm run lint` ו־`tsc --noEmit` נקיים
 
-## שלב 1 — שפת עיצוב, מילון טקסטים, ו־UI primitives
+## שלב 1 — שפת עיצוב, מילון טקסטים, ו־UI primitives ✅
 
 **1א · תשתית טקסטים** — נבנית ראשונה כדי שאף קומפוננטה לא תיוולד עם מחרוזת בתוכה
 
-- [ ] `i18n/locales/he.ts` — מילון מקונן: `common`, `nav`, `workouts.list`, `workouts.form`, `workouts.detail`, `workouts.errors`, `workouts.confirm`
-- [ ] `i18n/dictionary.ts` — `dict` + `type Dictionary = typeof he`, ו־`i18n/index.ts`
-- [ ] ערכי אינטרפולציה כפונקציות (`exerciseCount: (n) => ...`), לא שרשור מחרוזות
-- [ ] `features/workouts/constants.ts` — כל הגבולות והדיפולטים (`SETS_MIN/MAX`, `DEFAULT_SETS`, `NAME_MAX`, `DESCRIPTION_MAX`, `WEIGHT_MAX`, `REPS_MAX`)
+- [x] `i18n/locales/he.ts` — מילון מקונן: `common`, `nav`, `workouts.list`, `workouts.form`, `workouts.detail`, `workouts.errors`, `workouts.confirm`
+- [x] `i18n/dictionary.ts` — `dict` + `type Dictionary = typeof he`, ו־`i18n/index.ts`
+- [x] ערכי אינטרפולציה כפונקציות (`exerciseCount: (n) => ...`), לא שרשור מחרוזות
+- [x] `features/workouts/constants.ts` — כל הגבולות והדיפולטים (`SETS_MIN/MAX`, `DEFAULT_SETS`, `NAME_MAX`, `DESCRIPTION_MAX`, `WEIGHT_MAX`, `REPS_MAX`)
 
 **1ב · טוקנים ועיצוב**
 
-- [ ] `globals.css`: `@theme` עם `bg #0A0A0B`, `surface #141416`, `line #26262A`, `text #F4F4F5`, `muted #8A8A93`, `accent #C8F751`, `danger #F4515B`, רדיוסים, מרווחים
-- [ ] reset בסיסי + `:focus-visible` גלובלי + `selection`
+- [x] `globals.css`: `@theme` עם `bg #0A0A0B`, `surface #141416`, `line #26262A`, `text #F4F4F5`, `muted #8A8A93`, `accent #C8F751`, `danger #F4515B`, רדיוסים, מרווחים
+- [x] reset בסיסי + `:focus-visible` גלובלי + `selection`
 
 **1ג · primitives גנריים** (בלי `dict`, בלי דומיין — הכל דרך props)
 
-- [ ] `ui/button.tsx` — `primary | ghost | danger`, `sm | md`, `isLoading`, `disabled`
-- [ ] `ui/input.tsx`, `ui/textarea.tsx` — `aria-invalid` + מצב שגיאה
-- [ ] `ui/field.tsx` — label + control + שגיאה + hint (הקומפוננטה שמבטלת חזרתיות בטפסים)
-- [ ] `ui/card.tsx`, `ui/page-header.tsx` (כותרת + תיאור + slot לפעולות), `ui/empty-state.tsx`, `ui/badge.tsx`, `ui/icon-button.tsx`
-- [ ] `ui/data-table.tsx` — טבלה גנרית `columns: Column<T>[]` עם `renderCell`, מצב ריק, `rowHref` אופציונלי
-- [ ] `ui/sortable-list.tsx` — עטיפה גנרית מעל dnd-kit: מקבלת `items`, `onReorder(from, to)`, ו־`renderItem` עם `dragHandleProps`. לא יודעת מה זה תרגיל
-- [ ] `ui/confirm-dialog.tsx` — לאישור מחיקה
-- [ ] `components/layout/app-shell.tsx` + `nav.tsx` + חיבור ב־`layout.tsx`
-- [ ] דף `/design` זמני (dev בלבד) להצגת כל ה־primitives
+- [x] `ui/button.tsx` — `primary | ghost | danger`, `sm | md`, `isLoading`, `disabled`
+- [x] `ui/input.tsx`, `ui/textarea.tsx` — `aria-invalid` + מצב שגיאה
+- [x] `ui/field.tsx` — label + control + שגיאה + hint (הקומפוננטה שמבטלת חזרתיות בטפסים)
+- [x] `ui/card.tsx`, `ui/page-header.tsx` (כותרת + תיאור + slot לפעולות), `ui/empty-state.tsx`, `ui/badge.tsx`, `ui/icon-button.tsx`
+- [x] `ui/data-table.tsx` — טבלה גנרית `columns: Column<T>[]` עם `renderCell`, מצב ריק, `rowHref` אופציונלי
+- [x] `ui/sortable-list.tsx` — עטיפה גנרית מעל dnd-kit: מקבלת `items`, `onReorder(from, to)`, ו־`renderItem` עם `dragHandleProps`. לא יודעת מה זה תרגיל
+- [x] `ui/confirm-dialog.tsx` — לאישור מחיקה
+- [x] `components/layout/app-shell.tsx` + `nav.tsx` + חיבור ב־`layout.tsx`
+- [x] דף `/design` זמני (dev בלבד) להצגת כל ה־primitives
 - **מוכן כאשר:** כל הרכיבים נראים בדף אחד, אף אחד מהם לא מכיר workout ואף אחד לא מכיל מחרוזת עברית
 
 ## שלב 2 — מודל הנתונים + חיבור Neon 🔌

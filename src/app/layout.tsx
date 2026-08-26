@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Heebo } from 'next/font/google'
+import { AppShell } from '@/components/layout/app-shell'
 import { APP_DIRECTION, APP_LOCALE, dict } from '@/i18n'
 import './globals.css'
 
@@ -21,7 +22,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       dir={APP_DIRECTION}
       className={`${heebo.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="min-h-full">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   )
 }
