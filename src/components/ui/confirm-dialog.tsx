@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/cn'
+import { Alert } from './alert'
 import { Button, type ButtonVariant } from './button'
 
 export interface ConfirmDialogProps {
@@ -13,6 +14,8 @@ export interface ConfirmDialogProps {
   onConfirm: () => void
   onCancel: () => void
   isConfirming?: boolean
+  /** Shown inside the dialog when the action fails, so it stays open to retry. */
+  error?: string
   confirmVariant?: ButtonVariant
   className?: string
 }
@@ -31,6 +34,7 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
   isConfirming = false,
+  error,
   confirmVariant = 'danger',
   className,
 }: ConfirmDialogProps) {
@@ -64,6 +68,8 @@ export function ConfirmDialog({
       </h2>
 
       {description ? <p className="text-muted mt-2 text-sm">{description}</p> : null}
+
+      {error ? <Alert className="mt-4">{error}</Alert> : null}
 
       <div className="mt-6 flex justify-end gap-2">
         <Button variant="ghost" onClick={onCancel} disabled={isConfirming}>

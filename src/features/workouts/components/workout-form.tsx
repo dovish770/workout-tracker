@@ -25,8 +25,10 @@ export interface WorkoutFormProps {
   submitLabel: string
   /** A server action. On success it either redirects or resolves with `ok`. */
   onSubmit: (values: WorkoutInput) => Promise<ActionResult<unknown>>
-  /** Cancel control — a link when creating, a state toggle when editing. */
+  /** A navigation control beside submit — the document-level guard covers it. */
   secondaryAction?: React.ReactNode
+  /** An in-page cancel that does not navigate; routed through the same prompt. */
+  onCancel?: () => void
 }
 
 /**
@@ -39,6 +41,7 @@ export function WorkoutForm({
   submitLabel,
   onSubmit,
   secondaryAction,
+  onCancel,
 }: WorkoutFormProps) {
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -79,7 +82,7 @@ export function WorkoutForm({
   return (
     <FormProvider {...form}>
       <ConfirmDialog
-        isOpen={leaveGuard.pendingHref !== null}
+        isOpen={leaveGuard.isPrompting}
         title={dict.unsavedChanges.title}
         description={dict.unsavedChanges.description}
         confirmLabel={dict.unsavedChanges.confirm}
@@ -127,6 +130,17 @@ export function WorkoutForm({
           <Button type="submit" isLoading={isSubmitting}>
             {isSubmitting ? text.submitting : submitLabel}
           </Button>
+
+          {onCancel ? (
+            <Button
+              variant="ghost"
+              onClick={() => leaveGuard.guard(onCancel)}
+              disabled={isSubmitting}
+            >
+              {dict.common.cancel}
+            </Button>
+          ) : null}
+
           {secondaryAction}
         </div>
       </form>

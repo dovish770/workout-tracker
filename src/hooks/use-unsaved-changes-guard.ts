@@ -4,12 +4,17 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
 export interface UnsavedChangesGuard {
-  /** The destination being held back, or `null` when nothing is pending. */
-  pendingHref: string | null
-  /** Leave anyway — navigates to the held destination. */
+  /** True while the user is being asked to confirm. */
+  isPrompting: boolean
+  /** Leave anyway — runs whatever was held back. */
   confirmLeave: () => void
-  /** Stay on the page. */
+  /** Stay put. */
   cancelLeave: () => void
+  /**
+   * Route a non-navigating exit — closing an inline editor, say — through the
+   * same prompt. Runs immediately when there is nothing to lose.
+   */
+  guard: (leave: () => void) => void
 }
 
 /**
@@ -30,7 +35,10 @@ export interface UnsavedChangesGuard {
  */
 export function useUnsavedChangesGuard(isEnabled: boolean): UnsavedChangesGuard {
   const router = useRouter()
-  const [pendingHref, setPendingHref] = useState<string | null>(null)
+
+  // Held as a thunk rather than a destination, so the same prompt can gate a
+  // navigation and an in-page state change alike.
+  const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null)
 
   useEffect(() => {
     if (!isEnabled) return
@@ -75,22 +83,36 @@ export function useUnsavedChangesGuard(isEnabled: boolean): UnsavedChangesGuard 
       // means `next/link` never even sees the click.
       event.stopPropagation()
 
-      setPendingHref(destination.pathname + destination.search)
+      const destinationHref = destination.pathname + destination.search
+      // Wrapped: a bare function passed to setState would be run as an updater.
+      setPendingLeave(() => () => router.push(destinationHref))
     }
 
     document.addEventListener('click', interceptLinkClick, true)
     return () => document.removeEventListener('click', interceptLinkClick, true)
-  }, [isEnabled])
+  }, [isEnabled, router])
 
   const confirmLeave = useCallback(() => {
-    if (!pendingHref) return
+    if (!pendingLeave) return
 
-    // Cleared first so the pending state cannot survive the navigation.
-    setPendingHref(null)
-    router.push(pendingHref)
-  }, [pendingHref, router])
+    // Cleared first, so the pending state cannot outlive the navigation.
+    setPendingLeave(null)
+    pendingLeave()
+  }, [pendingLeave])
 
-  const cancelLeave = useCallback(() => setPendingHref(null), [])
+  const cancelLeave = useCallback(() => setPendingLeave(null), [])
 
-  return { pendingHref, confirmLeave, cancelLeave }
+  const guard = useCallback(
+    (leave: () => void) => {
+      if (!isEnabled) {
+        leave()
+        return
+      }
+
+      setPendingLeave(() => leave)
+    },
+    [isEnabled],
+  )
+
+  return { isPrompting: pendingLeave !== null, confirmLeave, cancelLeave, guard }
 }

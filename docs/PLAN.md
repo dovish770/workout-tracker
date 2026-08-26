@@ -138,15 +138,15 @@
 
 - **מוכן כאשר:** ה־seed רץ מחדש, 3 האימונים מציגים את אותם תרגילים ואותם מונים, `exercises` היא טבלה נפרדת, ומחיקת אימון מוחקת את תרגיליו
 
-## שלב 6 — דף אימון: תצוגה ועריכה inline (`/workouts/[id]`)
+## שלב 6 — דף אימון: תצוגה ועריכה inline (`/workouts/[id]`) ✅
 
-- [ ] `app/workouts/[id]/page.tsx` — `getWorkoutById` + `notFound()`
-- [ ] תצוגת קריאה: כותרת, תיאור, רשימת תרגילים עם סטים/חזרות/משקל
-- [ ] `workout-view.tsx` — client wrapper עם `isEditing`; מצב עריכה מרנדר את **אותה** `WorkoutForm` עם `defaultValues` של האימון
-- [ ] כפתורי עריכה / ביטול; ביטול מחזיר לערכים המקוריים בלי לשמור
-- [ ] הוספה, הסרה, עריכה וסידור מחדש של תרגילים — דרך אותו `ExerciseFields`
-- [ ] מחיקת אימון עם `ConfirmDialog` + redirect לרשימה
-- [ ] `not-found.tsx` ייעודי
+- [x] `app/workouts/[id]/page.tsx` — `getWorkoutById` + `notFound()`
+- [x] תצוגת קריאה: כותרת, תיאור, רשימת תרגילים עם סטים/חזרות/משקל
+- [x] `workout-view.tsx` — client wrapper עם `isEditing`; מצב עריכה מרנדר את **אותה** `WorkoutForm` עם `defaultValues` של האימון
+- [x] כפתורי עריכה / ביטול; ביטול מחזיר לערכים המקוריים בלי לשמור
+- [x] הוספה, הסרה, עריכה וסידור מחדש של תרגילים — דרך אותו `ExerciseFields`
+- [x] מחיקת אימון עם `ConfirmDialog` + redirect לרשימה
+- [x] `not-found.tsx` ייעודי
 - **מוכן כאשר:** מעגל CRUD מלא עובד מקצה לקצה מול Neon
 
 ## שלב 7 — ליטוש וסגירה
