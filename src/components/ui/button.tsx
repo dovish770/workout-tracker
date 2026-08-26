@@ -20,16 +20,32 @@ const SIZE_CLASSES = {
 export type ButtonVariant = keyof typeof VARIANT_CLASSES
 export type ButtonSize = keyof typeof SIZE_CLASSES
 
-export interface ButtonProps extends React.ComponentProps<'button'> {
+export interface ButtonStyleProps {
   variant?: ButtonVariant
   size?: ButtonSize
+  className?: string
+}
+
+/**
+ * Shared so a link that looks like a button (`ButtonLink`) cannot drift from
+ * the real thing. Semantics decide the element; this decides the appearance.
+ */
+export function buttonClasses({
+  variant = 'primary',
+  size = 'md',
+  className,
+}: ButtonStyleProps) {
+  return cn(BASE_CLASSES, VARIANT_CLASSES[variant], SIZE_CLASSES[size], className)
+}
+
+export interface ButtonProps extends React.ComponentProps<'button'>, ButtonStyleProps {
   /** Shows a spinner and blocks further clicks. Caller supplies the pending copy. */
   isLoading?: boolean
 }
 
 export function Button({
-  variant = 'primary',
-  size = 'md',
+  variant,
+  size,
   isLoading = false,
   disabled,
   children,
@@ -42,12 +58,7 @@ export function Button({
       {...props}
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
-      className={cn(
-        BASE_CLASSES,
-        VARIANT_CLASSES[variant],
-        SIZE_CLASSES[size],
-        className,
-      )}
+      className={buttonClasses({ variant, size, className })}
     >
       {isLoading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
       {children}

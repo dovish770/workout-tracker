@@ -78,14 +78,14 @@
 - [x] סקריפט `db:seed` עם 3 אימוני דוגמה
 - **מוכן כאשר:** ה־seed רץ, `drizzle-studio` מציג את השורות, ואפשר לקרוא ולכתוב מקוד שרת בלי UI
 
-## שלב 3 — דף רשימת האימונים (`/workouts`)
+## שלב 3 — דף רשימת האימונים (`/workouts`) ✅
 
-- [ ] `app/workouts/page.tsx` — Server Component דק: `getWorkouts()` + הרכבה
-- [ ] `features/workouts/components/workouts-table.tsx` — הגדרת עמודות מעל `DataTable`: שם, תיאור, מספר תרגילים
-- [ ] שורה שלמה מקושרת ל־`/workouts/[id]`
-- [ ] מצב ריק עם CTA ל"אימון חדש"
-- [ ] `loading.tsx` עם שלד טבלה
-- [ ] כפתור "אימון חדש" ב־`PageHeader`
+- [x] `app/workouts/page.tsx` — Server Component דק: `getWorkouts()` + הרכבה
+- [x] `features/workouts/components/workouts-table.tsx` — הגדרת עמודות מעל `DataTable`: שם, תיאור, מספר תרגילים
+- [x] שורה שלמה מקושרת ל־`/workouts/[id]`
+- [x] מצב ריק עם CTA ל"אימון חדש"
+- [x] `loading.tsx` עם שלד טבלה
+- [x] כפתור "אימון חדש" ב־`PageHeader`
 - **מוכן כאשר:** הרשימה מציגה נתונים אמיתיים מ־Neon, נראית טוב ב־375px, ולוחצת לדף פרטים
 
 ## שלב 4 — דף יצירת אימון (`/workouts/new`)
