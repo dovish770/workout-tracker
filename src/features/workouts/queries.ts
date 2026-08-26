@@ -2,11 +2,11 @@ import 'server-only'
 
 import { z } from 'zod'
 import { workoutRepository } from '@/db/repository'
-import type { Workout } from './schema'
+import type { Workout, WorkoutSummary } from './schema'
 
 const idSchema = z.uuid()
 
-export function getWorkouts(): Promise<Workout[]> {
+export function getWorkouts(): Promise<WorkoutSummary[]> {
   return workoutRepository.list()
 }
 

@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { randomUUID } from 'node:crypto'
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
-import { workouts } from '../src/db/schema'
+import { exercises, workouts } from '../src/db/schema'
 import type { WorkoutInput } from '../src/features/workouts/schema'
 
 /**
@@ -67,13 +67,28 @@ async function seed() {
     return
   }
 
-  const inserted = await db.insert(workouts).values(SEED_WORKOUTS).returning({
-    id: workouts.id,
-    name: workouts.name,
-  })
+  const workoutRows = SEED_WORKOUTS.map((workout) => ({
+    id: randomUUID(),
+    name: workout.name,
+    description: workout.description,
+  }))
 
-  console.log(`seed: inserted ${inserted.length} workouts`)
-  for (const workout of inserted) console.log(`  ${workout.id}  ${workout.name}`)
+  // Array order becomes the stored position, same rule as the app's saves.
+  const exerciseRows = SEED_WORKOUTS.flatMap((workout, workoutIndex) =>
+    workout.exercises.map((exercise, position) => ({
+      ...exercise,
+      workoutId: workoutRows[workoutIndex].id,
+      position,
+    })),
+  )
+
+  await db.insert(workouts).values(workoutRows)
+  await db.insert(exercises).values(exerciseRows)
+
+  console.log(
+    `seed: inserted ${workoutRows.length} workouts, ${exerciseRows.length} exercises`,
+  )
+  for (const workout of workoutRows) console.log(`  ${workout.id}  ${workout.name}`)
 }
 
 seed().catch((error) => {

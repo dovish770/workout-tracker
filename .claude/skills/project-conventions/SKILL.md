@@ -161,27 +161,37 @@ interface WorkoutRepository {
 }
 ```
 
-**Schema (single table).**
+**Schema.**
 
 ```
 workouts
   id           uuid        pk default gen_random_uuid()
   name         text        not null
   description  text        not null default ''
-  exercises    jsonb       not null default '[]'   -- Exercise[], array order IS display order
   created_at   timestamptz not null default now()
   updated_at   timestamptz not null default now()
 
-Exercise = {
-  id: string          // client-generated uuid, stable across reorder
-  name: string
-  sets: number
-  reps: number | null
-  maxWeight: number | null
-}
+exercises                                   -- many-to-one with workouts
+  id           uuid        pk default gen_random_uuid()
+  workout_id   uuid        not null references workouts(id) on delete cascade
+  position     integer     not null         -- zero-based order within the workout
+  name         text        not null
+  sets         integer     not null
+  reps         integer
+  max_weight   numeric(6,2)
+  created_at   timestamptz not null default now()
+  updated_at   timestamptz not null default now()
+
+  index (workout_id, position)              -- NOT unique, see below
 ```
 
-Exercises are a JSONB column, not a second table — they are only ever read and written together with their workout. Ordering needs no `position` field: the array order is the order, and reordering rewrites the array.
+`position` is deliberately not unique per workout: a reorder passes through
+states where two rows briefly share a position, and a unique constraint would
+abort the save. The array order in the form is still the source of truth — it
+is written out as `position` and read back with `order by position`.
+
+Deleting a workout removes its exercises through the cascade, never through
+application code.
 
 **Rules**
 
@@ -192,9 +202,10 @@ Exercises are a JSONB column, not a second table — they are only ever read and
    - return `ActionResult<T>` (`{ ok: true, data } | { ok: false, error, fieldErrors? }`) instead of throwing for expected failures;
    - call `revalidatePath()` for affected routes;
    - `redirect()` from the action, never from the component.
-4. Types flow one way: zod schema → `z.infer` → everything else. Never hand-write a type that duplicates a schema.
+4. Types flow one way: zod schema → `z.infer` → everything else. Never hand-write a type that duplicates a schema. When a screen needs less than the whole entity, derive a read model from it (`WorkoutSummary = Omit<Workout, 'exercises'> & { exerciseCount: number }`) and let the query produce exactly that.
 5. Sets, reps, and weight are `number` in TS and `integer` / `numeric` in SQL — never strings. Parse at the form boundary with `valueAsNumber`.
 6. DB error messages are logged server-side and surfaced to the user only as a generic dictionary string — never a raw driver message.
+7. Neon's HTTP driver has **no interactive transactions** — `db.transaction()` is unavailable. Anything that must be atomic goes through `db.batch([...])`, which Neon runs as one transaction in one round trip. Saving a workout is exactly this: update the row, delete its exercises, insert the new list.
 
 ## 8. Forms
 

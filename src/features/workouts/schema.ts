@@ -86,3 +86,10 @@ export const workoutSchema = workoutInputSchema.extend({
 export type Exercise = z.infer<typeof exerciseSchema>
 export type WorkoutInput = z.infer<typeof workoutInputSchema>
 export type Workout = z.infer<typeof workoutSchema>
+
+/**
+ * The list view's read model. It needs how many exercises a workout has, never
+ * what they are — so the query counts them in the database instead of shipping
+ * every exercise of every workout to render a number.
+ */
+export type WorkoutSummary = Omit<Workout, 'exercises'> & { exerciseCount: number }
