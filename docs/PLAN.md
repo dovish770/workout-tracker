@@ -4,7 +4,7 @@
 
 **החלטות שנסגרו:** ממשק בעברית RTL עם תשתית להחלפת שפה · כל טקסט ומספר בקבועים, לא בקוד · עריכה inline באותו דף · accent ליים `#C8F751` · שדה חזרות · גרירה לסידור תרגילים · Neon כבר בשלב 2.
 
-> **⚠️ נקודת החיבור שלך:** בתחילת שלב 2 אני עוצר וצריך ממך `DATABASE_URL` מפרויקט Neon. עד אז אין שום תלות בחיבור.
+> **Neon מחובר.** `DATABASE_URL` ב־`.env`, המיגרציה הוחלה, ה־seed רץ.
 
 ---
 
@@ -48,34 +48,34 @@
 - [x] דף `/design` זמני (dev בלבד) להצגת כל ה־primitives
 - **מוכן כאשר:** כל הרכיבים נראים בדף אחד, אף אחד מהם לא מכיר workout ואף אחד לא מכיל מחרוזת עברית
 
-## שלב 2 — מודל הנתונים + חיבור Neon 🔌
+## שלב 2 — מודל הנתונים + חיבור Neon ✅
 
 **2א · סכימה וטיפוסים**
 
-- [ ] `features/workouts/schema.ts` — `exerciseSchema`, `workoutInputSchema`, `workoutSchema` + טיפוסים ב־`z.infer`. הודעות מ־`dict`, גבולות מ־`constants.ts`
+- [x] `features/workouts/schema.ts` — `exerciseSchema`, `workoutInputSchema`, `workoutSchema` + טיפוסים ב־`z.infer`. הודעות מ־`dict`, גבולות מ־`constants.ts`
   - שם תרגיל: חובה, עד `EXERCISE_NAME_MAX`
   - סטים: שלם, `SETS_MIN`–`SETS_MAX`, ברירת מחדל `DEFAULT_SETS`
   - חזרות: אופציונלי, שלם, `'' → null`
   - משקל שיא: אופציונלי, חיובי, `'' → null`
   - שם אימון: חובה · תיאור: אופציונלי · לפחות תרגיל אחד
-- [ ] `lib/result.ts` — `ActionResult<T>` + `ok()` / `fail()`
+- [x] `lib/result.ts` — `ActionResult<T>` + `ok()` / `fail()`
 
-**2ב · Neon — כאן אני עוצר וצריך אותך**
+**2ב · Neon**
 
-- [ ] אתה: יצירת פרויקט ב־Neon והעברת `DATABASE_URL` (pooled connection string)
-- [ ] התקנת `drizzle-orm`, `@neondatabase/serverless`, `drizzle-kit`
-- [ ] `db/schema.ts` — טבלת `workouts` לפי §7 בקונבנציות, `jsonb().$type<Exercise[]>()`
-- [ ] `db/client.ts` — singleton
-- [ ] `drizzle.config.ts` + סקריפטים `db:generate` / `db:migrate` / `db:studio`
-- [ ] `DATABASE_URL` הופך לחובה ב־`lib/env.ts`
-- [ ] הרצת המיגרציה הראשונה מול Neon
+- [x] אתה: יצירת פרויקט ב־Neon והעברת `DATABASE_URL` (pooled connection string)
+- [x] התקנת `drizzle-orm`, `@neondatabase/serverless`, `drizzle-kit`
+- [x] `db/schema.ts` — טבלת `workouts` לפי §7 בקונבנציות, `jsonb().$type<Exercise[]>()`
+- [x] `db/client.ts` — singleton
+- [x] `drizzle.config.ts` + סקריפטים `db:generate` / `db:migrate` / `db:studio`
+- [x] `DATABASE_URL` הופך לחובה ב־`lib/env.ts`
+- [x] הרצת המיגרציה הראשונה מול Neon
 
 **2ג · שכבת גישה**
 
-- [ ] `db/repository.ts` — ה־interface + `drizzleWorkoutRepository`
-- [ ] `features/workouts/queries.ts` — `getWorkouts`, `getWorkoutById`
-- [ ] `features/workouts/actions.ts` — `createWorkout`, `updateWorkout`, `deleteWorkout` (ולידציה מחדש + `revalidatePath` + `redirect`)
-- [ ] סקריפט `db:seed` עם 3 אימוני דוגמה
+- [x] `db/repository.ts` — ה־interface + `drizzleWorkoutRepository`
+- [x] `features/workouts/queries.ts` — `getWorkouts`, `getWorkoutById`
+- [x] `features/workouts/actions.ts` — `createWorkout`, `updateWorkout`, `deleteWorkout` (ולידציה מחדש + `revalidatePath` + `redirect`)
+- [x] סקריפט `db:seed` עם 3 אימוני דוגמה
 - **מוכן כאשר:** ה־seed רץ, `drizzle-studio` מציג את השורות, ואפשר לקרוא ולכתוב מקוד שרת בלי UI
 
 ## שלב 3 — דף רשימת האימונים (`/workouts`)

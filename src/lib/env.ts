@@ -6,12 +6,11 @@ import { z } from 'zod'
  * Variables are read one by one rather than spreading `process.env`, because
  * the bundler only inlines statically referenced keys.
  *
- * `DATABASE_URL` is optional until Neon is wired in (stage 2); at that point
- * `.optional()` is removed and a missing URL fails the build loudly instead of
- * surfacing as a runtime crash on the first query.
+ * A missing or malformed `DATABASE_URL` fails here, at import time, instead of
+ * surfacing as an opaque driver error on the first query.
  */
 const envSchema = z.object({
-  DATABASE_URL: z.url().optional(),
+  DATABASE_URL: z.url(),
 })
 
 const parsed = envSchema.safeParse({
