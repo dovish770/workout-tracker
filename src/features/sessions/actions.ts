@@ -7,10 +7,22 @@ import { sessionRepository } from '@/db/session-repository'
 import { dict } from '@/i18n'
 import { fail, ok, type ActionResult } from '@/lib/result'
 import { ROUTES } from '@/lib/routes'
+import { WEIGHT_MAX, WEIGHT_MIN } from '@/features/workouts/constants'
 
 const idSchema = z.uuid()
 
 const message = dict.sessions.errors
+
+/** Same bounds as the workout form — this writes to the same column. */
+const weightSchema = z
+  .number({ error: dict.workouts.validation.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
+  .min(WEIGHT_MIN, {
+    error: dict.workouts.validation.weightRange(WEIGHT_MIN, WEIGHT_MAX),
+  })
+  .max(WEIGHT_MAX, {
+    error: dict.workouts.validation.weightRange(WEIGHT_MIN, WEIGHT_MAX),
+  })
+  .nullable()
 
 /** Both the session page and the list header react to a session changing. */
 function revalidateSession(sessionId: string) {
@@ -76,6 +88,35 @@ async function moveSet(
   }
 
   revalidateSession(sessionId)
+  return ok(undefined)
+}
+
+export async function setSessionMaxWeight(
+  sessionId: string,
+  sessionExerciseId: string,
+  maxWeight: number | null,
+): Promise<ActionResult<void>> {
+  if (!idSchema.safeParse(sessionId).success) return fail(dict.errors.notFound)
+  if (!idSchema.safeParse(sessionExerciseId).success) return fail(dict.errors.notFound)
+
+  const parsed = weightSchema.safeParse(maxWeight)
+  if (!parsed.success) return fail(parsed.error.issues[0].message)
+
+  try {
+    const session = await sessionRepository.setMaxWeight(
+      sessionId,
+      sessionExerciseId,
+      parsed.data,
+    )
+    if (!session) return fail(dict.errors.notFound)
+  } catch (error) {
+    console.error('setSessionMaxWeight failed', error)
+    return fail(dict.errors.generic)
+  }
+
+  revalidateSession(sessionId)
+  // The workout's own pages show the weight too, and it just changed.
+  revalidatePath(ROUTES.workouts.list, 'layout')
   return ok(undefined)
 }
 

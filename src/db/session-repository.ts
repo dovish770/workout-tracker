@@ -4,7 +4,7 @@ import { and, eq, sql } from 'drizzle-orm'
 import type { SessionStatus } from '@/features/sessions/constants'
 import type { WorkoutSession } from '@/features/sessions/types'
 import { db } from './client'
-import { sessionExercises, workoutSessions, workouts } from './schema'
+import { exercises, sessionExercises, workoutSessions, workouts } from './schema'
 
 /**
  * The data-access boundary for sessions. Same rule as `repository.ts`:
@@ -21,6 +21,12 @@ export interface SessionRepository {
   ): Promise<WorkoutSession | null>
   undoSet(sessionId: string, sessionExerciseId: string): Promise<WorkoutSession | null>
   finish(sessionId: string, status: SessionStatus): Promise<WorkoutSession | null>
+  /** Writes a new personal best back to the workout as well as the session. */
+  setMaxWeight(
+    sessionId: string,
+    sessionExerciseId: string,
+    maxWeight: number | null,
+  ): Promise<WorkoutSession | null>
 }
 
 const SESSION_EXERCISE_COLUMNS = {
@@ -173,6 +179,48 @@ export const sessionRepository: SessionRepository = {
 
   undoSet(sessionId, sessionExerciseId) {
     return moveSetCounter(sessionId, sessionExerciseId, -1)
+  },
+
+  async setMaxWeight(sessionId, sessionExerciseId, maxWeight) {
+    const [snapshot] = await db
+      .select({ sourceExerciseId: sessionExercises.sourceExerciseId })
+      .from(sessionExercises)
+      .where(
+        and(
+          eq(sessionExercises.id, sessionExerciseId),
+          eq(sessionExercises.sessionId, sessionId),
+        ),
+      )
+      .limit(1)
+
+    if (!snapshot) return null
+
+    /*
+     * The one write that crosses the snapshot line on purpose. Everywhere else
+     * the session is insulated from the workout; here a new personal best is a
+     * fact about the exercise itself, not just about today, so it goes back to
+     * the template too — unless that exercise has since been deleted, in which
+     * case only the session copy moves.
+     */
+    const updateSnapshot = () =>
+      db
+        .update(sessionExercises)
+        .set({ targetMaxWeight: maxWeight })
+        .where(eq(sessionExercises.id, sessionExerciseId))
+
+    if (snapshot.sourceExerciseId) {
+      await db.batch([
+        updateSnapshot(),
+        db
+          .update(exercises)
+          .set({ maxWeight, updatedAt: new Date() })
+          .where(eq(exercises.id, snapshot.sourceExerciseId)),
+      ])
+    } else {
+      await updateSnapshot()
+    }
+
+    return (await findSession(sessionId)) ?? null
   },
 
   async finish(sessionId, status) {

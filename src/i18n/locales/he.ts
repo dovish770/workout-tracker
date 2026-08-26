@@ -75,6 +75,33 @@ export const he = {
     },
 
     run: {
+      firstExercise: 'התרגיל הראשון',
+      nextExercise: 'התרגיל הבא',
+      letsStart: 'בוא נתחיל',
+      startAction: 'שנתחיל',
+      readyAction: 'מוכן',
+      setTitle: (index: number) => `סט ${formatNumber(index)}`,
+      setsCount: (count: number) => `${formatNumber(count)} סטים`,
+      restTitle: 'מנוחה',
+      restContinue: 'המשך',
+      restReset: 'אפס טיימר',
+      restSkip: 'דלג על המנוחה',
+      overdueBy: (seconds: number) => `+${formatNumber(seconds)} שניות מעבר לזמן`,
+      timerEnable: 'הפעלת טיימר מנוחה',
+      timerDisable: 'כיבוי טיימר מנוחה',
+      timerShow: 'הצגת הטיימר',
+      timerHide: 'הסתרת הטיימר',
+      maxWeightLabel: 'משקל שיא',
+      maxWeightNone: 'לא נקבע',
+      editMaxWeight: 'עדכון משקל שיא',
+      maxWeightSaved: 'משקל השיא עודכן',
+      exit: 'יציאה ממצב אימון',
+      settings: 'הגדרות אימון',
+      weightUnit: 'ק״ג',
+      weightPlaceholder: 'משקל בק״ג',
+      doneTitle: 'סיימת',
+      doneSubtitle: 'כל הכבוד',
+
       exerciseProgress: (current: number, total: number) =>
         `תרגיל ${formatNumber(current)} מתוך ${formatNumber(total)}`,
       setProgress: (done: number, total: number) =>
@@ -121,6 +148,7 @@ export const he = {
         name: 'שם האימון',
         description: 'תיאור',
         exerciseCount: 'תרגילים',
+        start: 'התחלה',
       },
       empty: {
         title: 'עדיין אין אימונים',

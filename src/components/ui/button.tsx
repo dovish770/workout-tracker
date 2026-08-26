@@ -15,6 +15,9 @@ const VARIANT_CLASSES = {
 const SIZE_CLASSES = {
   sm: 'h-8 gap-1.5 px-3 text-sm',
   md: 'h-10 gap-2 px-4 text-sm',
+  // The single primary action on a focus screen: a target for a tired,
+  // sweaty hand rather than a mouse.
+  lg: 'h-16 gap-3 px-8 text-lg',
 } as const
 
 export type ButtonVariant = keyof typeof VARIANT_CLASSES
