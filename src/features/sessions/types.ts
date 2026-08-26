@@ -11,6 +11,8 @@ export interface SessionExercise {
   targetSets: number
   targetReps: number | null
   targetMaxWeight: number | null
+  /** Rest between sets in seconds, or null when this exercise has no timer. */
+  restSeconds: number | null
   completedSets: number
 }
 

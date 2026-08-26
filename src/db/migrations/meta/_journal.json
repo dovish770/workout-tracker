@@ -22,6 +22,13 @@
       "when": 1787756793926,
       "tag": "0002_workout_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787757649485,
+      "tag": "0003_exercise_rest_seconds",
+      "breakpoints": true
     }
   ]
 }

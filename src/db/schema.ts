@@ -50,6 +50,13 @@ export const exercises = pgTable(
     // than a float — read back as a JS number.
     maxWeight: numeric('max_weight', { precision: 6, scale: 2, mode: 'number' }),
 
+    /**
+     * Rest between sets. Stored as plain seconds — the fixed set of choices
+     * lives in the UI (`REST_OPTIONS_SECONDS`), so adding one later is a
+     * constant change rather than a migration. Null means no timer.
+     */
+    restSeconds: integer('rest_seconds'),
+
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -132,6 +139,7 @@ export const sessionExercises = pgTable(
       scale: 2,
       mode: 'number',
     }),
+    restSeconds: integer('rest_seconds'),
 
     /** How many sets are done. Ticking a set increments; undo decrements. */
     completedSets: integer('completed_sets').notNull().default(0),

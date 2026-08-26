@@ -154,6 +154,8 @@ export const he = {
       repsLabel: 'חזרות',
       maxWeightLabel: 'משקל שיא',
       weightUnit: 'ק״ג',
+      restLabel: 'מנוחה',
+      restNone: 'ללא',
       exercisePosition: (index: number) => `תרגיל ${formatNumber(index)}`,
       addExercise: 'הוספת תרגיל',
       removeExercise: 'הסרת התרגיל',
@@ -181,6 +183,7 @@ export const he = {
       weightRange: (min: number, max: number) =>
         `המשקל חייב להיות בין ${formatNumber(min)} ל־${formatNumber(max)}`,
       exercisesMin: 'האימון חייב לכלול לפחות תרגיל אחד',
+      restInvalid: 'זמן מנוחה לא תקין',
     },
 
     confirmDelete: {

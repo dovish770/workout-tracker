@@ -32,6 +32,7 @@ const EXERCISE_COLUMNS = {
   sets: true,
   reps: true,
   maxWeight: true,
+  restSeconds: true,
 } as const
 
 /** Array order is still the source of truth for order; it becomes `position` here. */
@@ -44,6 +45,7 @@ function toExerciseRows(workoutId: string, list: Exercise[]) {
     sets: exercise.sets,
     reps: exercise.reps,
     maxWeight: exercise.maxWeight,
+    restSeconds: exercise.restSeconds,
   }))
 }
 

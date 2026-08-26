@@ -30,6 +30,7 @@ const SESSION_EXERCISE_COLUMNS = {
   targetSets: true,
   targetReps: true,
   targetMaxWeight: true,
+  restSeconds: true,
   completedSets: true,
 } as const
 
@@ -124,7 +125,14 @@ export const sessionRepository: SessionRepository = {
       columns: { id: true, name: true },
       with: {
         exercises: {
-          columns: { id: true, name: true, sets: true, reps: true, maxWeight: true },
+          columns: {
+            id: true,
+            name: true,
+            sets: true,
+            reps: true,
+            maxWeight: true,
+            restSeconds: true,
+          },
           orderBy: (exercise, { asc }) => [asc(exercise.position)],
         },
       },
@@ -151,6 +159,7 @@ export const sessionRepository: SessionRepository = {
           targetSets: exercise.sets,
           targetReps: exercise.reps,
           targetMaxWeight: exercise.maxWeight,
+          restSeconds: exercise.restSeconds,
         })),
       ),
     ])
