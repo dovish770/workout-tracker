@@ -15,7 +15,7 @@ export type WorkoutFormValues = z.input<typeof workoutInputSchema>
 export type ExerciseFormValues = WorkoutFormValues['exercises'][number]
 
 export function createEmptyExercise(): ExerciseFormValues {
-  return { name: '', sets: SETS_DEFAULT, reps: null, maxWeight: null }
+  return { name: '', sets: SETS_DEFAULT, reps: null, maxWeight: null, restSeconds: null }
 }
 
 /** A blank workout always starts with one exercise row — never an empty list. */

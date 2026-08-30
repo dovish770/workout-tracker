@@ -3,6 +3,7 @@
 import { TriangleAlert } from 'lucide-react'
 import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { AppShell } from '@/components/layout/app-shell'
 import { EmptyState } from '@/components/ui/empty-state'
 import { dict } from '@/i18n'
 
@@ -23,15 +24,17 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
   }, [error])
 
   return (
-    <EmptyState
-      icon={<TriangleAlert className="size-6" />}
-      title={dict.errors.title}
-      description={dict.errors.description}
-      action={
-        <Button size="sm" onClick={reset}>
-          {dict.errors.retry}
-        </Button>
-      }
-    />
+    <AppShell>
+      <EmptyState
+        icon={<TriangleAlert className="size-6" />}
+        title={dict.errors.title}
+        description={dict.errors.description}
+        action={
+          <Button size="sm" onClick={reset}>
+            {dict.errors.retry}
+          </Button>
+        }
+      />
+    </AppShell>
   )
 }

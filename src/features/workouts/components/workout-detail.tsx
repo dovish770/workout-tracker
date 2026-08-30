@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ButtonLink } from '@/components/ui/button-link'
 import { PageHeader } from '@/components/ui/page-header'
 import { useToast } from '@/components/ui/toast'
+import { StartWorkoutButton } from '@/features/sessions/components/start-workout-button'
 import { dict } from '@/i18n'
 import { ROUTES } from '@/lib/routes'
 import { updateWorkout } from '../actions'
@@ -50,6 +51,7 @@ export function WorkoutDetail({ workout }: WorkoutDetailProps) {
         actions={
           isEditing ? null : (
             <>
+              <StartWorkoutButton workoutId={workout.id} />
               <Button variant="ghost" onClick={() => setIsEditing(true)}>
                 <Pencil className="size-4" aria-hidden />
                 {dict.common.edit}

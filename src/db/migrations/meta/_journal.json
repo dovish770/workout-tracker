@@ -15,6 +15,34 @@
       "when": 1787747578276,
       "tag": "0001_normalize_exercises",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787756793926,
+      "tag": "0002_workout_sessions",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787757649485,
+      "tag": "0003_exercise_rest_seconds",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788086349948,
+      "tag": "0004_better_auth_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788088575491,
+      "tag": "0005_workout_ownership",
+      "breakpoints": true
     }
   ]
 }

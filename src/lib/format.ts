@@ -10,3 +10,12 @@ const numberFormatter = new Intl.NumberFormat(APP_INTL_LOCALE)
 export function formatNumber(value: number): string {
   return numberFormatter.format(value)
 }
+
+/** Seconds as `m:ss`, for rest durations and the running timer. */
+export function formatDuration(totalSeconds: number): string {
+  const safeSeconds = Math.max(0, Math.floor(totalSeconds))
+  const minutes = Math.floor(safeSeconds / 60)
+  const seconds = safeSeconds % 60
+
+  return `${formatNumber(minutes)}:${String(seconds).padStart(2, '0')}`
+}

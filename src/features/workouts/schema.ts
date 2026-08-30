@@ -5,6 +5,8 @@ import {
   EXERCISE_NAME_MAX,
   REPS_MAX,
   REPS_MIN,
+  REST_MAX,
+  REST_MIN,
   SETS_MAX,
   SETS_MIN,
   WEIGHT_MAX,
@@ -54,6 +56,18 @@ export const exerciseSchema = z.object({
     .number({ error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
     .min(WEIGHT_MIN, { error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
     .max(WEIGHT_MAX, { error: message.weightRange(WEIGHT_MIN, WEIGHT_MAX) })
+    .nullable(),
+
+  /**
+   * Rest between sets, in seconds. Validated as a plain bounded number rather
+   * than against the UI's option list, so trimming that list later cannot
+   * invalidate workouts already saved with a value that is no longer offered.
+   */
+  restSeconds: z
+    .number({ error: message.restInvalid })
+    .int({ error: message.restInvalid })
+    .min(REST_MIN, { error: message.restInvalid })
+    .max(REST_MAX, { error: message.restInvalid })
     .nullable(),
 })
 

@@ -53,10 +53,117 @@ export const he = {
     cancel: 'המשך עריכה',
   },
 
+  auth: {
+    loginTitle: 'מעקב אימונים',
+    loginSubtitle: 'התחבר כדי לראות את האימונים שלך',
+    signInWithGoogle: 'התחברות עם Google',
+    signingIn: 'מתחבר…',
+    signOut: 'התנתקות',
+    signedInAs: (name: string) => `מחובר כ־${name}`,
+    signInFailed: 'ההתחברות נכשלה. נסה שוב.',
+    accountMenu: 'תפריט חשבון',
+  },
+
   nav: {
     brand: 'מעקב אימונים',
     workouts: 'האימונים שלי',
     newWorkout: 'אימון חדש',
+  },
+
+  sessions: {
+    startAction: 'התחל אימון',
+    resumeAction: 'המשך אימון',
+    activeBanner: (name: string) => `אימון פעיל: ${name}`,
+
+    startDialog: {
+      title: 'להתחיל אימון?',
+      description: 'בחר את האימון שתרצה לבצע עכשיו.',
+      resumeTitle: 'יש לך אימון פעיל',
+      resumeDescription: (name: string) =>
+        `"${name}" עדיין באמצע. אפשר להמשיך מאיפה שהפסקת.`,
+      dismiss: 'לא עכשיו',
+      emptyWorkouts: 'אין עדיין אימונים להתחיל',
+      pickWorkout: 'בחירת אימון',
+      exercisesCount: (count: number) => `${formatNumber(count)} תרגילים`,
+    },
+
+    run: {
+      firstExercise: 'התרגיל הראשון',
+      nextExercise: 'התרגיל הבא',
+      letsStart: 'בוא נתחיל',
+      startAction: 'שנתחיל',
+      readyAction: 'מוכן',
+      setTitle: (index: number) => `סט ${formatNumber(index)}`,
+      setsCount: (count: number) => `${formatNumber(count)} סטים`,
+      restTitle: 'מנוחה',
+      restContinue: 'המשך',
+      restReset: 'אפס טיימר',
+      restSkip: 'דלג על המנוחה',
+      overdueBy: (seconds: number) => `+${formatNumber(seconds)} שניות מעבר לזמן`,
+      timerEnable: 'הפעלת טיימר מנוחה',
+      timerDisable: 'כיבוי טיימר מנוחה',
+      timerShow: 'הצגת הטיימר',
+      timerHide: 'הסתרת הטיימר',
+      maxWeightLabel: 'משקל שיא',
+      maxWeightNone: 'לא נקבע',
+      editMaxWeight: 'עדכון משקל שיא',
+      maxWeightSaved: 'משקל השיא עודכן',
+      exit: 'יציאה ממצב אימון',
+      settings: 'הגדרות אימון',
+      weightUnit: 'ק״ג',
+      weightPlaceholder: 'משקל בק״ג',
+      doneTitle: 'סיימת',
+      doneSubtitle: 'כל הכבוד',
+
+      exerciseProgress: (current: number, total: number) =>
+        `תרגיל ${formatNumber(current)} מתוך ${formatNumber(total)}`,
+      setProgress: (done: number, total: number) =>
+        `סט ${formatNumber(done)} מתוך ${formatNumber(total)}`,
+      totalProgress: (done: number, total: number) =>
+        `${formatNumber(done)} מתוך ${formatNumber(total)} סטים`,
+      targetReps: (count: number) => `${formatNumber(count)} חזרות`,
+      targetWeight: (weight: number) => `${formatNumber(weight)} ק״ג`,
+      noTarget: 'ללא יעד',
+      completeSet: 'סיום סט',
+      undoSet: 'ביטול הסט האחרון',
+      upNext: 'הבאים בתור',
+      upNextEmpty: 'זה התרגיל האחרון',
+      remainingSets: (done: number, total: number) =>
+        `${formatNumber(done)}/${formatNumber(total)}`,
+      done: 'הושלם',
+      allDone: 'סיימת את כל התרגילים',
+      allDoneDescription: 'אפשר לסיים את האימון.',
+      finish: 'סיום אימון',
+      finished: 'האימון הושלם. כל הכבוד.',
+      backToWorkouts: 'חזרה לאימונים',
+    },
+
+    abandon: {
+      action: 'הפסקת האימון',
+      title: 'להפסיק את האימון?',
+      description: 'ההתקדמות עד כה תישמר, אבל לא ניתן יהיה להמשיך את האימון הזה.',
+      confirm: 'הפסק את האימון',
+      stopped: 'האימון הופסק',
+    },
+
+    conflict: {
+      title: 'כבר יש אימון פעיל',
+      description: (name: string) =>
+        `"${name}" עדיין רץ. אפשר להפסיק אותו ולהתחיל את החדש במקומו.`,
+      descriptionUnknown: 'יש אימון פעיל. אפשר להפסיק אותו ולהתחיל את החדש במקומו.',
+      confirm: 'הפסק והתחל חדש',
+    },
+
+    errors: {
+      alreadyActive: 'כבר יש אימון פעיל. סיים אותו לפני שתתחיל חדש.',
+      cannotStart: 'לא ניתן להתחיל את האימון הזה. ייתכן שהוא נמחק או שאין בו תרגילים.',
+      notActive: 'האימון כבר אינו פעיל.',
+      notFoundTitle: 'האימון הפעיל לא נמצא',
+      notFoundDescription: 'ייתכן שהוא הסתיים או נמחק.',
+      expiredTitle: 'האימון פג',
+      expiredDescription: (hours: number) =>
+        `אימון נסגר אוטומטית אחרי ${formatNumber(hours)} שעות. אפשר להתחיל חדש.`,
+    },
   },
 
   workouts: {
@@ -69,6 +176,7 @@ export const he = {
         name: 'שם האימון',
         description: 'תיאור',
         exerciseCount: 'תרגילים',
+        start: 'התחלה',
       },
       empty: {
         title: 'עדיין אין אימונים',
@@ -102,6 +210,8 @@ export const he = {
       repsLabel: 'חזרות',
       maxWeightLabel: 'משקל שיא',
       weightUnit: 'ק״ג',
+      restLabel: 'מנוחה',
+      restNone: 'ללא',
       exercisePosition: (index: number) => `תרגיל ${formatNumber(index)}`,
       addExercise: 'הוספת תרגיל',
       removeExercise: 'הסרת התרגיל',
@@ -129,6 +239,7 @@ export const he = {
       weightRange: (min: number, max: number) =>
         `המשקל חייב להיות בין ${formatNumber(min)} ל־${formatNumber(max)}`,
       exercisesMin: 'האימון חייב לכלול לפחות תרגיל אחד',
+      restInvalid: 'זמן מנוחה לא תקין',
     },
 
     confirmDelete: {

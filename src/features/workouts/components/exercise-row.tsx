@@ -6,12 +6,15 @@ import { Card } from '@/components/ui/card'
 import { Field } from '@/components/ui/field'
 import { IconButton } from '@/components/ui/icon-button'
 import { Input } from '@/components/ui/input'
+import { Select, type SelectOption } from '@/components/ui/select'
 import type { DragHandleProps } from '@/components/ui/sortable-list'
 import { dict } from '@/i18n'
 import { cn } from '@/lib/cn'
+import { formatDuration } from '@/lib/format'
 import {
   REPS_MAX,
   REPS_MIN,
+  REST_OPTIONS_SECONDS,
   SETS_MAX,
   SETS_MIN,
   WEIGHT_MAX,
@@ -21,6 +24,15 @@ import {
 import { toNullableNumber, type WorkoutFormValues } from '../form-values'
 
 const text = dict.workouts.form
+
+/** `''` is the "no timer" choice — a select cannot carry a real null. */
+const REST_OPTIONS: SelectOption[] = [
+  { value: '', label: text.restNone },
+  ...REST_OPTIONS_SECONDS.map((seconds) => ({
+    value: String(seconds),
+    label: formatDuration(seconds),
+  })),
+]
 
 export interface ExerciseRowProps {
   index: number
@@ -82,7 +94,7 @@ export function ExerciseRow({
         )}
       </Field>
 
-      <div className="grid grid-cols-3 gap-2 sm:w-72">
+      <div className="grid grid-cols-2 gap-2 sm:w-96 sm:grid-cols-4">
         <Field label={text.setsLabel} error={rowErrors?.sets?.message} isRequired>
           {(control) => (
             <Input
@@ -123,6 +135,16 @@ export function ExerciseRow({
               min={WEIGHT_MIN}
               max={WEIGHT_MAX}
               step={WEIGHT_STEP}
+            />
+          )}
+        </Field>
+
+        <Field label={text.restLabel} error={rowErrors?.restSeconds?.message}>
+          {(control) => (
+            <Select
+              {...control}
+              {...register(`exercises.${index}.restSeconds`, numberField)}
+              options={REST_OPTIONS}
             />
           )}
         </Field>

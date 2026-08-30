@@ -3,6 +3,7 @@ import 'dotenv/config'
 import { randomUUID } from 'node:crypto'
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
+import { sql } from 'drizzle-orm'
 import { exercises, workouts } from '../src/db/schema'
 import type { WorkoutInput } from '../src/features/workouts/schema'
 
@@ -17,15 +18,37 @@ const SEED_WORKOUTS: WorkoutInput[] = [
     name: 'פלג גוף עליון',
     description: 'חזה, כתפיים וטרייספס',
     exercises: [
-      { id: randomUUID(), name: 'לחיצת חזה במוט', sets: 4, reps: 8, maxWeight: 80 },
-      { id: randomUUID(), name: 'לחיצת כתפיים בשיבה', sets: 3, reps: 10, maxWeight: 40 },
-      { id: randomUUID(), name: 'פרפר בפולי', sets: 3, reps: 12, maxWeight: 25 },
+      {
+        id: randomUUID(),
+        name: 'לחיצת חזה במוט',
+        sets: 4,
+        reps: 8,
+        maxWeight: 80,
+        restSeconds: 120,
+      },
+      {
+        id: randomUUID(),
+        name: 'לחיצת כתפיים בשיבה',
+        sets: 3,
+        reps: 10,
+        maxWeight: 40,
+        restSeconds: 90,
+      },
+      {
+        id: randomUUID(),
+        name: 'פרפר בפולי',
+        sets: 3,
+        reps: 12,
+        maxWeight: 25,
+        restSeconds: 90,
+      },
       {
         id: randomUUID(),
         name: 'פשיטת מרפקים בפולי',
         sets: 3,
         reps: 15,
         maxWeight: null,
+        restSeconds: null,
       },
     ],
   },
@@ -33,23 +56,59 @@ const SEED_WORKOUTS: WorkoutInput[] = [
     name: 'רגליים',
     description: 'סקוואט, דדליפט ותאומים',
     exercises: [
-      { id: randomUUID(), name: 'סקוואט', sets: 5, reps: 5, maxWeight: 120 },
-      { id: randomUUID(), name: 'דדליפט רומני', sets: 4, reps: 8, maxWeight: 100 },
-      { id: randomUUID(), name: 'לחיצת רגליים', sets: 3, reps: 12, maxWeight: 180 },
+      {
+        id: randomUUID(),
+        name: 'סקוואט',
+        sets: 5,
+        reps: 5,
+        maxWeight: 120,
+        restSeconds: 120,
+      },
+      {
+        id: randomUUID(),
+        name: 'דדליפט רומני',
+        sets: 4,
+        reps: 8,
+        maxWeight: 100,
+        restSeconds: 120,
+      },
+      {
+        id: randomUUID(),
+        name: 'לחיצת רגליים',
+        sets: 3,
+        reps: 12,
+        maxWeight: 180,
+        restSeconds: 90,
+      },
     ],
   },
   {
     name: 'גב וביצפס',
     description: '',
     exercises: [
-      { id: randomUUID(), name: 'מתח רחב', sets: 4, reps: null, maxWeight: null },
-      { id: randomUUID(), name: 'חתירה במוט', sets: 4, reps: 10, maxWeight: 70 },
+      {
+        id: randomUUID(),
+        name: 'מתח רחב',
+        sets: 4,
+        reps: null,
+        maxWeight: null,
+        restSeconds: 90,
+      },
+      {
+        id: randomUUID(),
+        name: 'חתירה במוט',
+        sets: 4,
+        reps: 10,
+        maxWeight: 70,
+        restSeconds: 90,
+      },
       {
         id: randomUUID(),
         name: 'כפיפת מרפקים במוט EZ',
         sets: 3,
         reps: 12,
         maxWeight: 30,
+        restSeconds: null,
       },
     ],
   },
@@ -67,8 +126,14 @@ async function seed() {
     return
   }
 
+  // Workouts belong to someone, so the seed needs an account to attach them to.
+  const owners = await db.execute(sql`select id from "user" order by created_at limit 1`)
+  const ownerId = ((owners.rows ?? owners) as { id: string }[])[0]?.id
+  if (!ownerId) throw new Error('seed: no user rows. Sign in once, then run this again.')
+
   const workoutRows = SEED_WORKOUTS.map((workout) => ({
     id: randomUUID(),
+    userId: ownerId,
     name: workout.name,
     description: workout.description,
   }))
