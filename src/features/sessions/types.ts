@@ -23,6 +23,8 @@ export interface WorkoutSession {
   workoutName: string
   status: SessionStatus
   startedAt: Date
+  /** Past this, the session is over whether or not anyone ended it. */
+  expiresAt: Date
   completedAt: Date | null
   exercises: SessionExercise[]
 }

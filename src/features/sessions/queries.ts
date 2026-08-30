@@ -2,7 +2,7 @@ import 'server-only'
 
 import { cache } from 'react'
 import { z } from 'zod'
-import { sessionRepository } from '@/db/session-repository'
+import { getSessionRepository } from './repository'
 import type { WorkoutSession } from './types'
 
 const idSchema = z.uuid()
@@ -12,13 +12,15 @@ const idSchema = z.uuid()
  * banner and the page body both ask for it.
  */
 export const getActiveSession = cache(async (): Promise<WorkoutSession | null> => {
-  return sessionRepository.getActive()
+  const repository = await getSessionRepository()
+  return repository.getActive()
 })
 
 export const getSessionById = cache(
   async (id: string): Promise<WorkoutSession | null> => {
     if (!idSchema.safeParse(id).success) return null
 
-    return sessionRepository.getById(id)
+    const repository = await getSessionRepository()
+    return repository.getById(id)
   },
 )

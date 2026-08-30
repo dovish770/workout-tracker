@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { workoutRepository } from '@/db/repository'
+import { getWorkoutRepository } from './repository'
 import { dict } from '@/i18n'
 import { fail, ok, toFieldErrors, type ActionResult } from '@/lib/result'
 import { ROUTES } from '@/lib/routes'
@@ -25,9 +25,13 @@ export async function createWorkout(input: unknown): Promise<ActionResult<never>
     return fail(dict.errors.generic, toFieldErrors(parsed.error.issues))
   }
 
+  // Outside the try on purpose: this redirects to the login screen by
+  // throwing, and a catch here would swallow the navigation.
+  const repository = await getWorkoutRepository()
+
   let createdId: string
   try {
-    const workout = await workoutRepository.create(parsed.data)
+    const workout = await repository.create(parsed.data)
     createdId = workout.id
   } catch (error) {
     console.error('createWorkout failed', error)
@@ -49,8 +53,10 @@ export async function updateWorkout(
     return fail(dict.errors.generic, toFieldErrors(parsed.error.issues))
   }
 
+  const repository = await getWorkoutRepository()
+
   try {
-    const workout = await workoutRepository.update(id, parsed.data)
+    const workout = await repository.update(id, parsed.data)
     if (!workout) return fail(dict.errors.notFound)
   } catch (error) {
     console.error('updateWorkout failed', error)
@@ -67,8 +73,10 @@ export async function updateWorkout(
 export async function deleteWorkout(id: string): Promise<ActionResult<never>> {
   if (!idSchema.safeParse(id).success) return fail(dict.errors.notFound)
 
+  const repository = await getWorkoutRepository()
+
   try {
-    const wasDeleted = await workoutRepository.remove(id)
+    const wasDeleted = await repository.remove(id)
     if (!wasDeleted) return fail(dict.errors.notFound)
   } catch (error) {
     console.error('deleteWorkout failed', error)

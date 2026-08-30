@@ -258,42 +258,42 @@
 
 **9ב · בעלות בסכימה**
 
-- [ ] `workouts.user_id` → `not null references user(id) on delete cascade`
-- [ ] `workout_sessions.user_id` → `not null references user(id) on delete cascade`
+- [x] `workouts.user_id` → `not null references user(id) on delete cascade`
+- [x] `workout_sessions.user_id` → `not null references user(id) on delete cascade`
       **חייב עמודה משלו ולא גזירה דרך האימון**: `workout_id` הוא nullable בכוונה, כי session שורד את מחיקת האימון שממנו נוצר
-- [ ] אינדקס על `workouts (user_id, created_at desc)` — זו בדיוק השאילתה של דף הרשימה
-- [ ] מיגרציה בשלושה חלקים: הוספת העמודות כ־nullable → backfill לחשבון שלך → הפיכה ל־`not null`
+- [x] אינדקס על `workouts (user_id, created_at desc)` — זו בדיוק השאילתה של דף הרשימה
+- [x] מיגרציה בשלושה חלקים: הוספת העמודות כ־nullable → backfill לחשבון שלך → הפיכה ל־`not null`
 
 **9ג · אימון פעיל — לכל משתמש, לא במערכת**
 
-- [ ] האינדקס הנוכחי `unique (status) where status = 'active'` **חייב להשתנות** ל־`unique (user_id) where status = 'active'`
+- [x] האינדקס הנוכחי `unique (status) where status = 'active'` **חייב להשתנות** ל־`unique (user_id) where status = 'active'`
       כרגע הוא אוכף אימון פעיל אחד **בכל המערכת**. עם משתמשים, המשתמש השני פשוט לא יוכל להתחיל אימון — באג שקט שקל מאוד לא לשים לב אליו עד שיש שני אנשים
-- [ ] `getActive()` מסונן לפי המשתמש הנוכחי
+- [x] `getActive()` מסונן לפי המשתמש הנוכחי
 
 **9ד · פקיעת תוקף — אימון מוגבל ל־3 שעות**
 
-- [ ] `SESSION_MAX_HOURS = 3` בקבועים, לא מספר קסם בקוד
-- [ ] `workout_sessions.expires_at` — `timestamptz not null`, נקבע ב־`started_at + SESSION_MAX_HOURS`
-- [ ] סטטוס חדש `expired` בנוסף ל־`abandoned`: אימון שפג אינו אימון שנזנח בבחירה, וההבחנה תהיה שווה משהו כשתהיה היסטוריה
-- [ ] **פקיעה עצלה, לא משימה מתוזמנת:** `getActive()` ו־`startSession` מסמנים אימון שפג כ־`expired` ברגע שנתקלים בו. בלי זה, אימון שפג נשאר `active` והאינדקס יחסום את המשתמש מלהתחיל חדש
-- [ ] מסך ייעודי במצב אימון לאימון שפג, עם דרך להתחיל מחדש
-- [ ] אופציונלי בהמשך: Vercel Cron לניקוי תקופתי. לא נדרש לנכונות — הפקיעה העצלה תמיד מדויקת ברגע שהיא מעניינת
+- [x] `SESSION_MAX_HOURS = 3` בקבועים, לא מספר קסם בקוד
+- [x] `workout_sessions.expires_at` — `timestamptz not null`, נקבע ב־`started_at + SESSION_MAX_HOURS`
+- [x] סטטוס חדש `expired` בנוסף ל־`abandoned`: אימון שפג אינו אימון שנזנח בבחירה, וההבחנה תהיה שווה משהו כשתהיה היסטוריה
+- [x] **פקיעה עצלה, לא משימה מתוזמנת:** `getActive()` ו־`startSession` מסמנים אימון שפג כ־`expired` ברגע שנתקלים בו. בלי זה, אימון שפג נשאר `active` והאינדקס יחסום את המשתמש מלהתחיל חדש
+- [x] מסך ייעודי במצב אימון לאימון שפג, עם דרך להתחיל מחדש
+- [x] אופציונלי בהמשך: Vercel Cron לניקוי תקופתי. לא נדרש לנכונות — הפקיעה העצלה תמיד מדויקת ברגע שהיא מעניינת
 
 **9ה · העיקרון — שאי אפשר לשכוח את הסינון**
 
-- [ ] לא מסננים ב־UI ולא סומכים על כך שכל שאילתה תזכור להוסיף `where user_id = ...`
-- [ ] במקום: `createWorkoutRepository(userId)` ו־`createSessionRepository(userId)` שנבנים לכל בקשה, וה־userId סגור בתוכם. **אין API שמאפשר לשאול בלי סינון**
-- [ ] כל מוטציה מאמתת בעלות **בתוך אותה שאילתה שכותבת** (`where id = ? and user_id = ?`), ולא בקריאה נפרדת לפניה — אחרת יש חלון ל־race
-- [ ] `getWorkoutById` של אימון של מישהו אחר מחזיר `null` ולא 403 — לא מדליפים את עצם הקיום
+- [x] לא מסננים ב־UI ולא סומכים על כך שכל שאילתה תזכור להוסיף `where user_id = ...`
+- [x] במקום: `createWorkoutRepository(userId)` ו־`createSessionRepository(userId)` שנבנים לכל בקשה, וה־userId סגור בתוכם. **אין API שמאפשר לשאול בלי סינון**
+- [x] כל מוטציה מאמתת בעלות **בתוך אותה שאילתה שכותבת** (`where id = ? and user_id = ?`), ולא בקריאה נפרדת לפניה — אחרת יש חלון ל־race
+- [x] `getWorkoutById` של אימון של מישהו אחר מחזיר `null` ולא 403 — לא מדליפים את עצם הקיום
 
 **9ו · ממשק**
 
 - [x] `app/(auth)/login` — route group שלישי, בלי ה־AppShell ובלי מצב אימון
 - [x] כפתור התחברות עם Google, יציאה בהדר, ומצב "מי מחובר"
-- [ ] `proxy.ts` שמגן על `/workouts/*` ועל `/sessions/*`
+- [x] `proxy.ts` שמגן על `/workouts/*` ועל `/sessions/*`
       ב־Next 16 `middleware.ts` הוצא משימוש ושמו הוחלף ל־`proxy.ts` (יש codemod רשמי)
-- [ ] **ה־proxy הוא נוחות ניתוב, לא גבול האבטחה.** התיעוד מציין שהוא עשוי לרוץ ב־CDN ושאסור להישען בו על מודולים משותפים. לכן הוא בודק קיום cookie ומפנה להתחברות — וההרשאה האמיתית נאכפת ב־9ה, בשכבת הנתונים, שם היא לא ניתנת לעקיפה
-- [ ] הרחבת המילון: `auth.*`
+- [x] **ה־proxy הוא נוחות ניתוב, לא גבול האבטחה.** התיעוד מציין שהוא עשוי לרוץ ב־CDN ושאסור להישען בו על מודולים משותפים. לכן הוא בודק קיום cookie ומפנה להתחברות — וההרשאה האמיתית נאכפת ב־9ה, בשכבת הנתונים, שם היא לא ניתנת לעקיפה
+- [x] הרחבת המילון: `auth.*`
 - [ ] מקרי קצה: משתמש חדש בלי אימונים, ניתוק באמצע session, כניסה משני מכשירים
 
 **9ז · פריסה — צריך אותך**

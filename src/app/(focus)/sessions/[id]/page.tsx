@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { ButtonLink } from '@/components/ui/button-link'
 import { FocusScreen } from '@/components/ui/focus-screen'
 import { SessionRunner } from '@/features/sessions/components/session-runner'
+import { SESSION_MAX_HOURS } from '@/features/sessions/constants'
 import { getSessionById } from '@/features/sessions/queries'
 import { dict } from '@/i18n'
 import { ROUTES } from '@/lib/routes'
@@ -25,13 +26,22 @@ export default async function SessionPage({ params }: PageProps<'/sessions/[id]'
 
   if (!session) notFound()
 
-  // A finished session is still readable at its URL; it just has nothing to run.
+  // A session that is over is still readable at its URL; it just has nothing
+  // to run. Timing out reads differently from finishing, and says so.
   if (session.status !== 'active') {
+    const isExpired = session.status === 'expired'
+
     return (
       <FocusScreen
-        title={dict.sessions.run.doneTitle}
-        subtitle={dict.sessions.run.finished}
-        tone="accent"
+        title={
+          isExpired ? dict.sessions.errors.expiredTitle : dict.sessions.run.doneTitle
+        }
+        subtitle={
+          isExpired
+            ? dict.sessions.errors.expiredDescription(SESSION_MAX_HOURS)
+            : dict.sessions.run.finished
+        }
+        tone={isExpired ? 'default' : 'accent'}
         action={
           <ButtonLink size="lg" href={ROUTES.workouts.list}>
             {dict.sessions.run.backToWorkouts}

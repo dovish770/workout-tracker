@@ -2,13 +2,15 @@ import 'server-only'
 
 import { and, eq, sql } from 'drizzle-orm'
 import type { SessionStatus } from '@/features/sessions/constants'
+import { SESSION_MAX_HOURS } from '@/features/sessions/constants'
 import type { WorkoutSession } from '@/features/sessions/types'
 import { db } from './client'
 import { exercises, sessionExercises, workoutSessions, workouts } from './schema'
 
 /**
  * The data-access boundary for sessions. Same rule as `repository.ts`:
- * nothing above this file knows Drizzle exists.
+ * nothing above this file knows Drizzle exists, and the owner is closed over
+ * so no call site can reach another user's data.
  */
 export interface SessionRepository {
   getActive(): Promise<WorkoutSession | null>
@@ -29,6 +31,16 @@ export interface SessionRepository {
   ): Promise<WorkoutSession | null>
 }
 
+const SESSION_COLUMNS = {
+  id: true,
+  workoutId: true,
+  workoutName: true,
+  status: true,
+  startedAt: true,
+  expiresAt: true,
+  completedAt: true,
+} as const
+
 const SESSION_EXERCISE_COLUMNS = {
   id: true,
   position: true,
@@ -40,76 +52,11 @@ const SESSION_EXERCISE_COLUMNS = {
   completedSets: true,
 } as const
 
-function findSession(id: string) {
-  return db.query.workoutSessions.findFirst({
-    where: eq(workoutSessions.id, id),
-    columns: {
-      id: true,
-      workoutId: true,
-      workoutName: true,
-      status: true,
-      startedAt: true,
-      completedAt: true,
-    },
-    with: {
-      exercises: {
-        columns: SESSION_EXERCISE_COLUMNS,
-        orderBy: (exercise, { asc }) => [asc(exercise.position)],
-      },
-    },
-  })
-}
-
-/**
- * Moves the counter for one exercise, clamped to its bounds inside SQL.
- *
- * The arithmetic has to happen in the database: two quick taps would otherwise
- * both read the same value and the second would undo the first, and a clamp in
- * JavaScript could be raced past the target.
- */
-async function moveSetCounter(
-  sessionId: string,
-  sessionExerciseId: string,
-  direction: 1 | -1,
-): Promise<WorkoutSession | null> {
-  const [session] = await db
-    .select({ id: workoutSessions.id })
-    .from(workoutSessions)
-    .where(and(eq(workoutSessions.id, sessionId), eq(workoutSessions.status, 'active')))
-    .limit(1)
-
-  if (!session) return null
-
-  const nextValue =
-    direction === 1
-      ? sql`least(${sessionExercises.completedSets} + 1, ${sessionExercises.targetSets})`
-      : sql`greatest(${sessionExercises.completedSets} - 1, 0)`
-
-  await db
-    .update(sessionExercises)
-    .set({ completedSets: nextValue })
-    .where(
-      and(
-        eq(sessionExercises.id, sessionExerciseId),
-        eq(sessionExercises.sessionId, sessionId),
-      ),
-    )
-
-  return (await findSession(sessionId)) ?? null
-}
-
-export const sessionRepository: SessionRepository = {
-  async getActive() {
-    const session = await db.query.workoutSessions.findFirst({
-      where: eq(workoutSessions.status, 'active'),
-      columns: {
-        id: true,
-        workoutId: true,
-        workoutName: true,
-        status: true,
-        startedAt: true,
-        completedAt: true,
-      },
+export function createSessionRepository(userId: string): SessionRepository {
+  function findSession(id: string) {
+    return db.query.workoutSessions.findFirst({
+      where: and(eq(workoutSessions.id, id), eq(workoutSessions.userId, userId)),
+      columns: SESSION_COLUMNS,
       with: {
         exercises: {
           columns: SESSION_EXERCISE_COLUMNS,
@@ -117,127 +64,230 @@ export const sessionRepository: SessionRepository = {
         },
       },
     })
+  }
 
-    return session ?? null
-  },
+  /**
+   * Closes a session that has run past its limit, at the moment anyone looks.
+   *
+   * Deliberately lazy rather than a scheduled job: while an expired session
+   * still reads as `active`, the partial unique index counts it, and the user
+   * can never start another one. A cron would fix that eventually; this fixes
+   * it exactly when it matters. `completed_at` records when it actually ran
+   * out, not when we noticed.
+   */
+  async function expireIfElapsed(
+    session: WorkoutSession,
+  ): Promise<WorkoutSession | null> {
+    if (session.status !== 'active' || session.expiresAt > new Date()) return session
 
-  async getById(id) {
-    return (await findSession(id)) ?? null
-  },
+    await db
+      .update(workoutSessions)
+      .set({
+        status: 'expired',
+        completedAt: session.expiresAt,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(eq(workoutSessions.id, session.id), eq(workoutSessions.status, 'active')),
+      )
 
-  async start(workoutId) {
-    const workout = await db.query.workouts.findFirst({
-      where: eq(workouts.id, workoutId),
-      columns: { id: true, name: true },
-      with: {
-        exercises: {
-          columns: {
-            id: true,
-            name: true,
-            sets: true,
-            reps: true,
-            maxWeight: true,
-            restSeconds: true,
-          },
-          orderBy: (exercise, { asc }) => [asc(exercise.position)],
-        },
-      },
-    })
+    return { ...session, status: 'expired', completedAt: session.expiresAt }
+  }
 
-    if (!workout || workout.exercises.length === 0) return null
+  /** Moves the counter for one exercise, clamped to its bounds inside SQL. */
+  async function moveSetCounter(
+    sessionId: string,
+    sessionExerciseId: string,
+    direction: 1 | -1,
+  ): Promise<WorkoutSession | null> {
+    const current = await findSession(sessionId)
+    if (!current) return null
 
-    const sessionId = crypto.randomUUID()
+    const live = await expireIfElapsed(current)
+    if (!live || live.status !== 'active') return null
 
-    // One transaction: a session without its exercises would be unusable, and
-    // the partial unique index rejects a second active session here.
-    await db.batch([
-      db.insert(workoutSessions).values({
-        id: sessionId,
-        workoutId: workout.id,
-        workoutName: workout.name,
-      }),
-      db.insert(sessionExercises).values(
-        workout.exercises.map((exercise, index) => ({
-          sessionId,
-          sourceExerciseId: exercise.id,
-          position: index,
-          name: exercise.name,
-          targetSets: exercise.sets,
-          targetReps: exercise.reps,
-          targetMaxWeight: exercise.maxWeight,
-          restSeconds: exercise.restSeconds,
-        })),
-      ),
-    ])
+    /*
+     * The arithmetic happens in the database: two quick taps would otherwise
+     * both read the same value and the second would undo the first, and a
+     * clamp in JavaScript could be raced past the target.
+     */
+    const nextValue =
+      direction === 1
+        ? sql`least(${sessionExercises.completedSets} + 1, ${sessionExercises.targetSets})`
+        : sql`greatest(${sessionExercises.completedSets} - 1, 0)`
 
-    return (await findSession(sessionId)) ?? null
-  },
-
-  completeSet(sessionId, sessionExerciseId) {
-    return moveSetCounter(sessionId, sessionExerciseId, 1)
-  },
-
-  undoSet(sessionId, sessionExerciseId) {
-    return moveSetCounter(sessionId, sessionExerciseId, -1)
-  },
-
-  async setMaxWeight(sessionId, sessionExerciseId, maxWeight) {
-    const [snapshot] = await db
-      .select({ sourceExerciseId: sessionExercises.sourceExerciseId })
-      .from(sessionExercises)
+    await db
+      .update(sessionExercises)
+      .set({ completedSets: nextValue })
       .where(
         and(
           eq(sessionExercises.id, sessionExerciseId),
           eq(sessionExercises.sessionId, sessionId),
         ),
       )
-      .limit(1)
-
-    if (!snapshot) return null
-
-    /*
-     * The one write that crosses the snapshot line on purpose. Everywhere else
-     * the session is insulated from the workout; here a new personal best is a
-     * fact about the exercise itself, not just about today, so it goes back to
-     * the template too — unless that exercise has since been deleted, in which
-     * case only the session copy moves.
-     */
-    const updateSnapshot = () =>
-      db
-        .update(sessionExercises)
-        .set({ targetMaxWeight: maxWeight })
-        .where(eq(sessionExercises.id, sessionExerciseId))
-
-    if (snapshot.sourceExerciseId) {
-      await db.batch([
-        updateSnapshot(),
-        db
-          .update(exercises)
-          .set({ maxWeight, updatedAt: new Date() })
-          .where(eq(exercises.id, snapshot.sourceExerciseId)),
-      ])
-    } else {
-      await updateSnapshot()
-    }
 
     return (await findSession(sessionId)) ?? null
-  },
+  }
 
-  async finish(sessionId, status) {
-    const [updated] = await db
-      .update(workoutSessions)
-      .set({
-        status,
-        completedAt: new Date(),
-        updatedAt: new Date(),
+  return {
+    async getActive() {
+      const session = await db.query.workoutSessions.findFirst({
+        where: and(
+          eq(workoutSessions.userId, userId),
+          eq(workoutSessions.status, 'active'),
+        ),
+        columns: SESSION_COLUMNS,
+        with: {
+          exercises: {
+            columns: SESSION_EXERCISE_COLUMNS,
+            orderBy: (exercise, { asc }) => [asc(exercise.position)],
+          },
+        },
       })
-      // Only an active session can be finished, so a double submit is a no-op
-      // rather than a second, later `completed_at`.
-      .where(and(eq(workoutSessions.id, sessionId), eq(workoutSessions.status, 'active')))
-      .returning({ id: workoutSessions.id })
 
-    if (!updated) return null
+      if (!session) return null
 
-    return (await findSession(sessionId)) ?? null
-  },
+      const live = await expireIfElapsed(session)
+      return live?.status === 'active' ? live : null
+    },
+
+    async getById(id) {
+      const session = await findSession(id)
+      if (!session) return null
+
+      return expireIfElapsed(session)
+    },
+
+    async start(workoutId) {
+      const workout = await db.query.workouts.findFirst({
+        // Scoped: starting someone else's workout is not possible.
+        where: and(eq(workouts.id, workoutId), eq(workouts.userId, userId)),
+        columns: { id: true, name: true },
+        with: {
+          exercises: {
+            columns: {
+              id: true,
+              name: true,
+              sets: true,
+              reps: true,
+              maxWeight: true,
+              restSeconds: true,
+            },
+            orderBy: (exercise, { asc }) => [asc(exercise.position)],
+          },
+        },
+      })
+
+      if (!workout || workout.exercises.length === 0) return null
+
+      const sessionId = crypto.randomUUID()
+      const startedAt = new Date()
+      const expiresAt = new Date(startedAt.getTime() + SESSION_MAX_HOURS * 60 * 60 * 1000)
+
+      // One transaction: a session without its exercises would be unusable, and
+      // the partial unique index rejects a second active session here.
+      await db.batch([
+        db.insert(workoutSessions).values({
+          id: sessionId,
+          userId,
+          workoutId: workout.id,
+          workoutName: workout.name,
+          startedAt,
+          expiresAt,
+        }),
+        db.insert(sessionExercises).values(
+          workout.exercises.map((exercise, index) => ({
+            sessionId,
+            sourceExerciseId: exercise.id,
+            position: index,
+            name: exercise.name,
+            targetSets: exercise.sets,
+            targetReps: exercise.reps,
+            targetMaxWeight: exercise.maxWeight,
+            restSeconds: exercise.restSeconds,
+          })),
+        ),
+      ])
+
+      return (await findSession(sessionId)) ?? null
+    },
+
+    completeSet(sessionId, sessionExerciseId) {
+      return moveSetCounter(sessionId, sessionExerciseId, 1)
+    },
+
+    undoSet(sessionId, sessionExerciseId) {
+      return moveSetCounter(sessionId, sessionExerciseId, -1)
+    },
+
+    async finish(sessionId, status) {
+      const [updated] = await db
+        .update(workoutSessions)
+        .set({ status, completedAt: new Date(), updatedAt: new Date() })
+        // Ownership and "still active" in one predicate, so a double submit is
+        // a no-op rather than a second, later `completed_at`.
+        .where(
+          and(
+            eq(workoutSessions.id, sessionId),
+            eq(workoutSessions.userId, userId),
+            eq(workoutSessions.status, 'active'),
+          ),
+        )
+        .returning({ id: workoutSessions.id })
+
+      if (!updated) return null
+
+      return (await findSession(sessionId)) ?? null
+    },
+
+    async setMaxWeight(sessionId, sessionExerciseId, maxWeight) {
+      // Joined back to the session so ownership is checked in the same read.
+      const [snapshot] = await db
+        .select({ sourceExerciseId: sessionExercises.sourceExerciseId })
+        .from(sessionExercises)
+        .innerJoin(
+          workoutSessions,
+          and(
+            eq(workoutSessions.id, sessionExercises.sessionId),
+            eq(workoutSessions.userId, userId),
+          ),
+        )
+        .where(
+          and(
+            eq(sessionExercises.id, sessionExerciseId),
+            eq(sessionExercises.sessionId, sessionId),
+          ),
+        )
+        .limit(1)
+
+      if (!snapshot) return null
+
+      const updateSnapshot = () =>
+        db
+          .update(sessionExercises)
+          .set({ targetMaxWeight: maxWeight })
+          .where(eq(sessionExercises.id, sessionExerciseId))
+
+      /*
+       * The one write that crosses the snapshot line on purpose. Everywhere
+       * else the session is insulated from the workout; here a new personal
+       * best is a fact about the exercise itself, not just about today, so it
+       * goes back to the template too — scoped to this owner, and skipped
+       * entirely if that exercise has since been deleted.
+       */
+      if (snapshot.sourceExerciseId) {
+        await db.batch([
+          updateSnapshot(),
+          db
+            .update(exercises)
+            .set({ maxWeight, updatedAt: new Date() })
+            .where(eq(exercises.id, snapshot.sourceExerciseId)),
+        ])
+      } else {
+        await updateSnapshot()
+      }
+
+      return (await findSession(sessionId)) ?? null
+    },
+  }
 }

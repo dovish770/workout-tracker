@@ -160,6 +160,9 @@ export const he = {
       notActive: 'האימון כבר אינו פעיל.',
       notFoundTitle: 'האימון הפעיל לא נמצא',
       notFoundDescription: 'ייתכן שהוא הסתיים או נמחק.',
+      expiredTitle: 'האימון פג',
+      expiredDescription: (hours: number) =>
+        `אימון נסגר אוטומטית אחרי ${formatNumber(hours)} שעות. אפשר להתחיל חדש.`,
     },
   },
 

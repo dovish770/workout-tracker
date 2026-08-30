@@ -11,16 +11,27 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 import { SESSION_STATUSES } from '@/features/sessions/constants'
+import { user } from './auth-schema'
 
 export const sessionStatus = pgEnum('session_status', SESSION_STATUSES)
 
-export const workouts = pgTable('workouts', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  description: text('description').notNull().default(''),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-})
+export const workouts = pgTable(
+  'workouts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    description: text('description').notNull().default(''),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  // Exactly the list page's query: this user's workouts, newest first.
+  (table) => [
+    index('workouts_user_created_idx').on(table.userId, table.createdAt.desc()),
+  ],
+)
 
 export const exercises = pgTable(
   'exercises',
@@ -93,18 +104,31 @@ export const workoutSessions = pgTable(
       onDelete: 'set null',
     }),
 
+    /**
+     * Its own column rather than a hop through `workout_id`, which is nullable
+     * on purpose: a session outlives the workout it was started from.
+     */
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+
     workoutName: text('workout_name').notNull(),
     status: sessionStatus('status').notNull().default('active'),
     startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+
+    /** `started_at` plus `SESSION_MAX_HOURS`; past it the session is over. */
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     completedAt: timestamp('completed_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    // Enforces "one active session at a time" in the database rather than in
-    // application code, where a double click could slip past it.
+    // One active session *per user*, enforced in the database rather than in
+    // application code where a double click could slip past it. Scoped on
+    // `user_id`: keyed on status alone it would let one person's workout block
+    // everybody else's.
     uniqueIndex('workout_sessions_single_active_idx')
-      .on(table.status)
+      .on(table.userId)
       .where(sql`${table.status} = 'active'`),
     index('workout_sessions_started_at_idx').on(table.startedAt),
   ],

@@ -36,6 +36,13 @@
       "when": 1788086349948,
       "tag": "0004_better_auth_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788088575491,
+      "tag": "0005_workout_ownership",
+      "breakpoints": true
     }
   ]
 }

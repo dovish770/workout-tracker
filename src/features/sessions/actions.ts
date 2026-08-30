@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { sessionRepository } from '@/db/session-repository'
+import { getSessionRepository } from './repository'
 import { SESSION_ERROR_CODE } from './constants'
 import { dict } from '@/i18n'
 import { fail, ok, type ActionResult } from '@/lib/result'
@@ -36,14 +36,18 @@ export async function startSession(workoutId: string): Promise<ActionResult<neve
 
   // Checked before inserting so the common case gets a real explanation; the
   // partial unique index is what actually prevents two active sessions.
-  const active = await sessionRepository.getActive()
+  // Outside every try below: this redirects to the login screen by throwing,
+  // and a catch around it would swallow the navigation.
+  const repository = await getSessionRepository()
+
+  const active = await repository.getActive()
   if (active) {
     return fail(message.alreadyActive, { code: SESSION_ERROR_CODE.activeSessionExists })
   }
 
   let sessionId: string
   try {
-    const session = await sessionRepository.start(workoutId)
+    const session = await repository.start(workoutId)
     if (!session) return fail(message.cannotStart)
 
     sessionId = session.id
@@ -65,8 +69,7 @@ export async function startSession(workoutId: string): Promise<ActionResult<neve
 export async function replaceActiveSession(
   workoutId: string,
 ): Promise<ActionResult<never>> {
-  const active = await sessionRepository.getActive()
-
+  const active = await (await getSessionRepository()).getActive()
   if (active) {
     const stopped = await endSession(active.id, 'abandoned')
     if (!stopped.ok) return fail(stopped.error)
@@ -97,11 +100,13 @@ async function moveSet(
   if (!idSchema.safeParse(sessionId).success) return fail(dict.errors.notFound)
   if (!idSchema.safeParse(sessionExerciseId).success) return fail(dict.errors.notFound)
 
+  const repository = await getSessionRepository()
+
   try {
     const session =
       direction === 'complete'
-        ? await sessionRepository.completeSet(sessionId, sessionExerciseId)
-        : await sessionRepository.undoSet(sessionId, sessionExerciseId)
+        ? await repository.completeSet(sessionId, sessionExerciseId)
+        : await repository.undoSet(sessionId, sessionExerciseId)
 
     if (!session) return fail(message.notActive)
   } catch (error) {
@@ -124,8 +129,10 @@ export async function setSessionMaxWeight(
   const parsed = weightSchema.safeParse(maxWeight)
   if (!parsed.success) return fail(parsed.error.issues[0].message)
 
+  const repository = await getSessionRepository()
+
   try {
-    const session = await sessionRepository.setMaxWeight(
+    const session = await repository.setMaxWeight(
       sessionId,
       sessionExerciseId,
       parsed.data,
@@ -159,8 +166,10 @@ async function endSession(
 ): Promise<ActionResult<void>> {
   if (!idSchema.safeParse(sessionId).success) return fail(dict.errors.notFound)
 
+  const repository = await getSessionRepository()
+
   try {
-    const session = await sessionRepository.finish(sessionId, status)
+    const session = await repository.finish(sessionId, status)
     if (!session) return fail(message.notActive)
   } catch (error) {
     console.error('endSession failed', error)

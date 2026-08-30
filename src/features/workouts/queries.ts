@@ -2,14 +2,15 @@ import 'server-only'
 
 import { cache } from 'react'
 import { z } from 'zod'
-import { workoutRepository } from '@/db/repository'
+import { getWorkoutRepository } from './repository'
 import type { Workout, WorkoutSummary } from './schema'
 
 const idSchema = z.uuid()
 
 /** Memoized per request — the entry prompt in the layout also needs this list. */
 export const getWorkouts = cache(async (): Promise<WorkoutSummary[]> => {
-  return workoutRepository.list()
+  const repository = await getWorkoutRepository()
+  return repository.list()
 })
 
 /**
@@ -21,5 +22,6 @@ export const getWorkoutById = cache(async (id: string): Promise<Workout | null> 
   // "not found", not a crash.
   if (!idSchema.safeParse(id).success) return null
 
-  return workoutRepository.getById(id)
+  const repository = await getWorkoutRepository()
+  return repository.getById(id)
 })
