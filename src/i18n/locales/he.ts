@@ -53,6 +53,17 @@ export const he = {
     cancel: 'המשך עריכה',
   },
 
+  auth: {
+    loginTitle: 'מעקב אימונים',
+    loginSubtitle: 'התחבר כדי לראות את האימונים שלך',
+    signInWithGoogle: 'התחברות עם Google',
+    signingIn: 'מתחבר…',
+    signOut: 'התנתקות',
+    signedInAs: (name: string) => `מחובר כ־${name}`,
+    signInFailed: 'ההתחברות נכשלה. נסה שוב.',
+    accountMenu: 'תפריט חשבון',
+  },
+
   nav: {
     brand: 'מעקב אימונים',
     workouts: 'האימונים שלי',

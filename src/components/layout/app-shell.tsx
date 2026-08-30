@@ -9,11 +9,13 @@ const MAIN_CONTENT_ID = 'main-content'
 export interface AppShellProps {
   /** Rendered directly under the header, full width. */
   banner?: React.ReactNode
+  /** Who is signed in, at the inline end of the header. */
+  account?: React.ReactNode
   children: React.ReactNode
 }
 
 /** Header, page container and vertical rhythm — every route sits inside this. */
-export function AppShell({ banner, children }: AppShellProps) {
+export function AppShell({ banner, account, children }: AppShellProps) {
   return (
     <div className="flex min-h-full flex-col">
       {/*
@@ -37,7 +39,10 @@ export function AppShell({ banner, children }: AppShellProps) {
             {dict.nav.brand}
           </Link>
 
-          <MainNav />
+          <div className="flex items-center gap-2">
+            <MainNav />
+            {account}
+          </div>
         </div>
       </header>
 

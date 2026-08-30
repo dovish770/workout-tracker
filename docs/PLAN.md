@@ -252,9 +252,9 @@
 - [x] טבלאות Better Auth ב־`db/auth-schema.ts` + מיגרציה. **לא דרך ה־CLI** — הוא deprecated ובגרסה מוקדמת מהספרייה, והיה מחמיץ את `account.issuer`. במקום זה נשאבו מ־`getSchema()` של הגרסה המותקנת
 - [x] אושר: `session` של הספרייה ו־`workout_sessions` שלנו חיים זו לצד זו בלי התנגשות
 - [x] `lib/auth.ts` (שרת) — עדיין לא מחובר לאף ראוט, כדי שהאפליקציה הפרוסה תמשיך לעבוד עד שיהיו credentials
-- [ ] `lib/auth-client.ts` (לקוח)
+- [x] `lib/auth-client.ts` (לקוח) + ראוט `/api/auth/[...all]`
 - [x] `lib/auth-env.ts` — ולידציה נפרדת מ־`lib/env.ts` בכוונה: זו האחרונה מיובאת דרך ה־DB כמעט לכל קובץ שרת, ודרישה שם הייתה מפילה את כל האפליקציה עד שהמשתנים יוגדרו
-- [ ] `getCurrentUser()` ב־`features/auth/queries.ts`, ממוזכר לכל בקשה
+- [x] `getCurrentUser()` ב־`features/auth/queries.ts`, ממוזכר לכל בקשה
 
 **9ב · בעלות בסכימה**
 
@@ -288,8 +288,8 @@
 
 **9ו · ממשק**
 
-- [ ] `app/(auth)/login` — route group שלישי, בלי ה־AppShell ובלי מצב אימון
-- [ ] כפתור התחברות עם Google, יציאה בהדר, ומצב "מי מחובר"
+- [x] `app/(auth)/login` — route group שלישי, בלי ה־AppShell ובלי מצב אימון
+- [x] כפתור התחברות עם Google, יציאה בהדר, ומצב "מי מחובר"
 - [ ] `proxy.ts` שמגן על `/workouts/*` ועל `/sessions/*`
       ב־Next 16 `middleware.ts` הוצא משימוש ושמו הוחלף ל־`proxy.ts` (יש codemod רשמי)
 - [ ] **ה־proxy הוא נוחות ניתוב, לא גבול האבטחה.** התיעוד מציין שהוא עשוי לרוץ ב־CDN ושאסור להישען בו על מודולים משותפים. לכן הוא בודק קיום cookie ומפנה להתחברות — וההרשאה האמיתית נאכפת ב־9ה, בשכבת הנתונים, שם היא לא ניתנת לעקיפה
@@ -298,7 +298,7 @@
 
 **9ז · פריסה — צריך אותך**
 
-- [ ] אתה: יצירת OAuth credentials ב־Google Cloud Console, עם redirect URIs ל־localhost **ולדומיין ב־Vercel**
+- [x] אתה: יצירת OAuth credentials ב־Google Cloud Console
 - [ ] אתה: הזנת ארבעת המשתנים ב־`.env` המקומי וב־Vercel. **אל תדביק אותם בצ׳אט** — אני לא צריך לראות אותם, רק שיהיו במקום
 - [ ] אתה: ה־URL של הפרודקשן, כדי להגדיר `BETTER_AUTH_URL`
 - [ ] הרצת המיגרציות מול Neon
