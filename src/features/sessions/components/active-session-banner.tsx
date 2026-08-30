@@ -3,6 +3,7 @@ import { ButtonLink } from '@/components/ui/button-link'
 import { dict } from '@/i18n'
 import { ROUTES } from '@/lib/routes'
 import { getActiveSession } from '../queries'
+import { StopSessionButton } from './stop-session-button'
 
 /**
  * The way back into a session that was left mid-workout.
@@ -24,9 +25,12 @@ export async function ActiveSessionBanner() {
           </span>
         </p>
 
-        <ButtonLink size="sm" href={ROUTES.sessions.detail(session.id)}>
-          {dict.sessions.resumeAction}
-        </ButtonLink>
+        <div className="flex shrink-0 items-center gap-2">
+          <StopSessionButton sessionId={session.id} />
+          <ButtonLink size="sm" href={ROUTES.sessions.detail(session.id)}>
+            {dict.sessions.resumeAction}
+          </ButtonLink>
+        </div>
       </div>
     </div>
   )

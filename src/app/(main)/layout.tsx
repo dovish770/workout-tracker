@@ -1,6 +1,7 @@
 import { AppShell } from '@/components/layout/app-shell'
 import { ActiveSessionBanner } from '@/features/sessions/components/active-session-banner'
 import { SessionEntryGate } from '@/features/sessions/components/session-entry-gate'
+import { StartWorkoutGate } from '@/features/sessions/components/start-workout-gate'
 
 /**
  * Everything the app normally shows lives in this group: header, nav and the
@@ -8,10 +9,12 @@ import { SessionEntryGate } from '@/features/sessions/components/session-entry-g
  */
 export default function MainLayout({ children }: LayoutProps<'/'>) {
   return (
-    <AppShell banner={<ActiveSessionBanner />}>
-      {/* Layouts do not re-render on navigation, so this mounts once a visit. */}
-      <SessionEntryGate />
-      {children}
-    </AppShell>
+    <StartWorkoutGate>
+      <AppShell banner={<ActiveSessionBanner />}>
+        {/* Layouts do not re-render on navigation, so this mounts once a visit. */}
+        <SessionEntryGate />
+        {children}
+      </AppShell>
+    </StartWorkoutGate>
   )
 }

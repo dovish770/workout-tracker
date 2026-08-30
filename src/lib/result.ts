@@ -10,14 +10,21 @@
 export type FieldErrors = Record<string, string[]>
 
 export type ActionResult<T = void> =
-  { ok: true; data: T } | { ok: false; error: string; fieldErrors?: FieldErrors }
+  | { ok: true; data: T }
+  | { ok: false; error: string; code?: string; fieldErrors?: FieldErrors }
+
+export interface FailureDetails {
+  /** A stable identifier for the failure, when the caller must react to it. */
+  code?: string
+  fieldErrors?: FieldErrors
+}
 
 export function ok<T>(data: T): ActionResult<T> {
   return { ok: true, data }
 }
 
-export function fail(error: string, fieldErrors?: FieldErrors): ActionResult<never> {
-  return { ok: false, error, fieldErrors }
+export function fail(error: string, details: FailureDetails = {}): ActionResult<never> {
+  return { ok: false, error, ...details }
 }
 
 /** Shape of a Zod issue, kept structural so this file stays validator-agnostic. */

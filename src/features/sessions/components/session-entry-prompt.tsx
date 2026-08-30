@@ -9,6 +9,7 @@ import type { WorkoutSummary } from '@/features/workouts/schema'
 import { dict } from '@/i18n'
 import { ROUTES } from '@/lib/routes'
 import { useStartWorkout } from '../use-start-workout'
+import { StopSessionButton } from './stop-session-button'
 
 const text = dict.sessions.startDialog
 
@@ -30,6 +31,7 @@ export interface SessionEntryPromptProps {
 export function SessionEntryPrompt({ workouts, activeSession }: SessionEntryPromptProps) {
   const [isDismissed, setDismissed] = useStoredFlag(SEEN_KEY, false, 'session')
   const { start, isStarting } = useStartWorkout()
+  const isBusy = workouts.some((workout) => isStarting(workout.id))
 
   // Nothing to offer, nothing to ask.
   const hasSomethingToOffer = activeSession !== null || workouts.length > 0
@@ -50,6 +52,7 @@ export function SessionEntryPrompt({ workouts, activeSession }: SessionEntryProm
             <Button variant="ghost" onClick={dismiss}>
               {text.dismiss}
             </Button>
+            <StopSessionButton sessionId={activeSession.id} size="md" />
             <ButtonLink href={ROUTES.sessions.detail(activeSession.id)} onClick={dismiss}>
               {dict.sessions.resumeAction}
             </ButtonLink>
@@ -65,9 +68,9 @@ export function SessionEntryPrompt({ workouts, activeSession }: SessionEntryProm
       onClose={dismiss}
       title={text.title}
       description={text.description}
-      isBusy={isStarting}
+      isBusy={isBusy}
       footer={
-        <Button variant="ghost" onClick={dismiss} disabled={isStarting}>
+        <Button variant="ghost" onClick={dismiss} disabled={isBusy}>
           {text.dismiss}
         </Button>
       }
@@ -78,7 +81,7 @@ export function SessionEntryPrompt({ workouts, activeSession }: SessionEntryProm
             <button
               type="button"
               onClick={() => start(workout.id)}
-              disabled={isStarting}
+              disabled={isBusy}
               className="border-line hover:border-line-strong hover:bg-surface-hover flex w-full cursor-pointer items-center gap-3 rounded-md border px-3 py-2.5 text-start transition-colors duration-150 ease-out disabled:pointer-events-none disabled:opacity-50"
             >
               <Play

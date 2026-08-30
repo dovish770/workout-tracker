@@ -1,30 +1,19 @@
 'use client'
 
-import { useTransition } from 'react'
-import { useToast } from '@/components/ui/toast'
-import { startSession } from './actions'
+import { useStartWorkoutContext } from './components/start-workout-provider'
 
 export interface StartWorkout {
   start: (workoutId: string) => void
-  isStarting: boolean
+  isStarting: (workoutId: string) => boolean
 }
 
 /**
  * Starting a workout from anywhere: the list, the workout page, the entry
- * prompt. Shared so the pending state and the "already active" refusal are
- * handled identically wherever the action is offered.
+ * prompt. The work itself lives in the provider so the pending state and the
+ * "already running" conflict are handled once.
  */
 export function useStartWorkout(): StartWorkout {
-  const [isStarting, startAction] = useTransition()
-  const toast = useToast()
+  const { start, startingWorkoutId } = useStartWorkoutContext()
 
-  function start(workoutId: string) {
-    startAction(async () => {
-      // Redirects into focus mode on success, so only a refusal comes back.
-      const result = await startSession(workoutId)
-      if (!result.ok) toast.show(result.error, 'danger')
-    })
-  }
-
-  return { start, isStarting }
+  return { start, isStarting: (workoutId) => startingWorkoutId === workoutId }
 }

@@ -29,7 +29,7 @@ export function StartWorkoutButton({
       size={size}
       variant={variant}
       onClick={() => start(workoutId)}
-      isLoading={isStarting}
+      isLoading={isStarting(workoutId)}
       className={className}
     >
       <Play className="size-4 rtl:-scale-x-100" aria-hidden />

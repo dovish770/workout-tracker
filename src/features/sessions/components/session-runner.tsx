@@ -16,6 +16,7 @@ import { completeSet, finishSession, undoSet } from '../actions'
 import { getSessionProgress } from '../progress'
 import type { WorkoutSession } from '../types'
 import { MaxWeightHeader } from './max-weight-header'
+import { StopSessionButton } from './stop-session-button'
 import { UpNextList } from './up-next-list'
 
 const text = dict.sessions.run
@@ -143,11 +144,19 @@ export function SessionRunner({ session }: SessionRunnerProps) {
     })
   }
 
+  /*
+   * Leaving and stopping are deliberately different and deliberately adjacent:
+   * exiting keeps the workout running for later, stopping ends it. Offering
+   * only the first is how a session gets stranded.
+   */
   const exitControl = (
-    <ButtonLink variant="ghost" size="sm" href={ROUTES.workouts.list}>
-      <LogOut className="size-4 rtl:-scale-x-100" aria-hidden />
-      {text.exit}
-    </ButtonLink>
+    <>
+      <ButtonLink variant="ghost" size="sm" href={ROUTES.workouts.list}>
+        <LogOut className="size-4 rtl:-scale-x-100" aria-hidden />
+        {text.exit}
+      </ButtonLink>
+      <StopSessionButton sessionId={session.id} variant="danger" />
+    </>
   )
 
   const undoControl =

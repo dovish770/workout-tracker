@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { sessionRepository } from '@/db/session-repository'
+import { SESSION_ERROR_CODE } from './constants'
 import { dict } from '@/i18n'
 import { fail, ok, type ActionResult } from '@/lib/result'
 import { ROUTES } from '@/lib/routes'
@@ -36,7 +37,9 @@ export async function startSession(workoutId: string): Promise<ActionResult<neve
   // Checked before inserting so the common case gets a real explanation; the
   // partial unique index is what actually prevents two active sessions.
   const active = await sessionRepository.getActive()
-  if (active) return fail(message.alreadyActive)
+  if (active) {
+    return fail(message.alreadyActive, { code: SESSION_ERROR_CODE.activeSessionExists })
+  }
 
   let sessionId: string
   try {
@@ -51,6 +54,25 @@ export async function startSession(workoutId: string): Promise<ActionResult<neve
 
   revalidatePath(ROUTES.workouts.list)
   redirect(ROUTES.sessions.detail(sessionId))
+}
+
+/**
+ * Stops whatever is running and starts this workout instead.
+ *
+ * Separate from `startSession` on purpose: discarding a workout in progress is
+ * never a silent side effect of pressing "start".
+ */
+export async function replaceActiveSession(
+  workoutId: string,
+): Promise<ActionResult<never>> {
+  const active = await sessionRepository.getActive()
+
+  if (active) {
+    const stopped = await endSession(active.id, 'abandoned')
+    if (!stopped.ok) return fail(stopped.error)
+  }
+
+  return startSession(workoutId)
 }
 
 export async function completeSet(
