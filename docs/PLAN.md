@@ -248,24 +248,26 @@
 
 **9א · תשתית האימות**
 
-- [ ] התקנת `better-auth`, הגדרת ה־adapter מול Drizzle
-- [ ] יצירת טבלאות Better Auth דרך המחולל שלו + מיגרציה. **לבדוק בשמות בפועל** — לספרייה יש טבלת `session` משלה, ולנו כבר יש `workout_sessions`; זה לא מתנגש אבל מבלבל, ואולי נרצה prefix
-- [ ] `lib/auth.ts` (שרת) ו־`lib/auth-client.ts` (לקוח)
-- [ ] `lib/env.ts` מקבל: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- [x] התקנת `better-auth`, הגדרת ה־adapter מול Drizzle
+- [x] טבלאות Better Auth ב־`db/auth-schema.ts` + מיגרציה. **לא דרך ה־CLI** — הוא deprecated ובגרסה מוקדמת מהספרייה, והיה מחמיץ את `account.issuer`. במקום זה נשאבו מ־`getSchema()` של הגרסה המותקנת
+- [x] אושר: `session` של הספרייה ו־`workout_sessions` שלנו חיים זו לצד זו בלי התנגשות
+- [x] `lib/auth.ts` (שרת) — עדיין לא מחובר לאף ראוט, כדי שהאפליקציה הפרוסה תמשיך לעבוד עד שיהיו credentials
+- [ ] `lib/auth-client.ts` (לקוח)
+- [x] `lib/auth-env.ts` — ולידציה נפרדת מ־`lib/env.ts` בכוונה: זו האחרונה מיובאת דרך ה־DB כמעט לכל קובץ שרת, ודרישה שם הייתה מפילה את כל האפליקציה עד שהמשתנים יוגדרו
 - [ ] `getCurrentUser()` ב־`features/auth/queries.ts`, ממוזכר לכל בקשה
 
 **9ב · בעלות בסכימה**
 
 - [ ] `workouts.user_id` → `not null references user(id) on delete cascade`
 - [ ] `workout_sessions.user_id` → `not null references user(id) on delete cascade`
-  **חייב עמודה משלו ולא גזירה דרך האימון**: `workout_id` הוא nullable בכוונה, כי session שורד את מחיקת האימון שממנו נוצר
+      **חייב עמודה משלו ולא גזירה דרך האימון**: `workout_id` הוא nullable בכוונה, כי session שורד את מחיקת האימון שממנו נוצר
 - [ ] אינדקס על `workouts (user_id, created_at desc)` — זו בדיוק השאילתה של דף הרשימה
 - [ ] מיגרציה בשלושה חלקים: הוספת העמודות כ־nullable → backfill לחשבון שלך → הפיכה ל־`not null`
 
 **9ג · אימון פעיל — לכל משתמש, לא במערכת**
 
 - [ ] האינדקס הנוכחי `unique (status) where status = 'active'` **חייב להשתנות** ל־`unique (user_id) where status = 'active'`
-  כרגע הוא אוכף אימון פעיל אחד **בכל המערכת**. עם משתמשים, המשתמש השני פשוט לא יוכל להתחיל אימון — באג שקט שקל מאוד לא לשים לב אליו עד שיש שני אנשים
+      כרגע הוא אוכף אימון פעיל אחד **בכל המערכת**. עם משתמשים, המשתמש השני פשוט לא יוכל להתחיל אימון — באג שקט שקל מאוד לא לשים לב אליו עד שיש שני אנשים
 - [ ] `getActive()` מסונן לפי המשתמש הנוכחי
 
 **9ד · פקיעת תוקף — אימון מוגבל ל־3 שעות**
@@ -289,7 +291,7 @@
 - [ ] `app/(auth)/login` — route group שלישי, בלי ה־AppShell ובלי מצב אימון
 - [ ] כפתור התחברות עם Google, יציאה בהדר, ומצב "מי מחובר"
 - [ ] `proxy.ts` שמגן על `/workouts/*` ועל `/sessions/*`
-  ב־Next 16 `middleware.ts` הוצא משימוש ושמו הוחלף ל־`proxy.ts` (יש codemod רשמי)
+      ב־Next 16 `middleware.ts` הוצא משימוש ושמו הוחלף ל־`proxy.ts` (יש codemod רשמי)
 - [ ] **ה־proxy הוא נוחות ניתוב, לא גבול האבטחה.** התיעוד מציין שהוא עשוי לרוץ ב־CDN ושאסור להישען בו על מודולים משותפים. לכן הוא בודק קיום cookie ומפנה להתחברות — וההרשאה האמיתית נאכפת ב־9ה, בשכבת הנתונים, שם היא לא ניתנת לעקיפה
 - [ ] הרחבת המילון: `auth.*`
 - [ ] מקרי קצה: משתמש חדש בלי אימונים, ניתוק באמצע session, כניסה משני מכשירים
